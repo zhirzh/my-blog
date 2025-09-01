@@ -1,0 +1,30 @@
+---
+import Layout from '@/layouts/Root.astro'
+import type { MdProps, Post } from '@/types'
+
+type Props = MdProps<Frontmatter>
+
+type Frontmatter = {
+   layout: string
+   title: string
+   date: string
+}
+
+const posts = import.meta.glob<Post<Frontmatter>>('@/pages/posts/**/*.md', {
+   eager: true,
+})
+
+const sortedPosts = Object.values(posts).sort((a, b) =>
+   a.frontmatter.date.localeCompare(b.frontmatter.date),
+)
+
+const post = sortedPosts.find((p) => p.url === Astro.props.url)!
+
+const i = sortedPosts.indexOf(post)
+const nextPost = sortedPosts[i + 1]
+const prevPost = sortedPosts[i - 1]
+---
+
+<Layout>
+   <slot />
+</Layout>
