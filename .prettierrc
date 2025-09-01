@@ -1,0 +1,7 @@
+{
+   "plugins": ["prettier-plugin-astro"],
+   "jsxSingleQuote": true,
+   "semi": false,
+   "singleQuote": true,
+   "tabWidth": 3
+}
