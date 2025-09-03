@@ -1,0 +1,98 @@
+<!DOCTYPE html><html lang="en" class="scroll-pt-30 scroll-smooth"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.13.5"><title>Astro Basics</title><link rel="stylesheet" href="/my-blog/_astro/2016-10-08-flowtype-and-modern-js.B3-O7Wa6.css"></head> <body class="dark:bg-slate-900">  <div class="mx-auto grid max-w-5xl gap-x-10 py-30" style="grid-template-columns:minmax(0,1fr) 300px"> <article class="prose dark:prose-invert max-w-none"> <header> <h1>Flowtype and modern JS</h1> <time class="text-sm" datetime="2016-10-08T00:00:00.000Z"> October 8th, 2016 </time> </header> <p>As we all know, JavaScript is <em>loose typed</em> - variables are declared without a type.
+And like everything, not having explicitly mentioned data types had its pros and cons.</p>
+<p>One of the advantages is that the development process is much smoother, as JS is much more tolerant towards type mismatches.
+But that can also be seen as a disadvantage.</p>
+<!-- preview -->
+<h3 id="the-problem">The Problem</h3>
+<p>Let’s work out an example.
+Suppose there is a function that must only be passed boolean arguments (<code>true</code> and <code>false</code>), we need to manually check if the arguments are booleans and were not coerced into.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> foo</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">typeof</span><span style="color:#E1E4E8"> foo); </span><span style="color:#6A737D">// boolean</span></span>
+<span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(foo.</span><span style="color:#79B8FF">constructor</span><span style="color:#E1E4E8">); </span><span style="color:#6A737D">// Boolean</span></span>
+<span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(foo </span><span style="color:#F97583">instanceof</span><span style="color:#B392F0"> Boolean</span><span style="color:#E1E4E8">); </span><span style="color:#6A737D">// false</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> bar</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Boolean</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">typeof</span><span style="color:#E1E4E8"> bar); </span><span style="color:#6A737D">// object</span></span>
+<span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(bar.</span><span style="color:#79B8FF">constructor</span><span style="color:#E1E4E8">); </span><span style="color:#6A737D">// Boolean</span></span>
+<span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(bar </span><span style="color:#F97583">instanceof</span><span style="color:#B392F0"> Boolean</span><span style="color:#E1E4E8">); </span><span style="color:#6A737D">// true</span></span></code></pre>
+<p>As we can see, we need to check if the passed argument is either a primitive boolean or an instance of class Boolean.
+Now, imagine doing this over and again, for all the arguments, in all the functions, of all the JS code that you have ever written or will ever write.</p>
+<p>This is the heart of the problem - type safety.
+We are lucky that in most scenarios, there isn’t a need to do this.
+But in larger, more complex softwares, type safety is a must.</p>
+<h3 id="the-solution">The Solution</h3>
+<p>Solution is pretty simple - make JS a strongly typed language.
+But that would require rewriting the whole JS ecosystem, and no one in their right minds would want to do that.</p>
+<p>Another approach can be to add type-checks on top of existing codebase.
+This is much less invasive and preserves legacy code.
+We may see such inclusions in JS in the far future, but not today.</p>
+<p>Out best bet would be a module that, somehow, checks our code for us.
+We already have linters for maintaining code style and unit tests for testing code itself.
+Why not something for type safety?</p>
+<hr>
+<h2 id="flowtype">Flowtype</h2>
+<p><a href="https://flowtype.org">Flowtype</a> (or Flow) by Facebook is a static type checker for JS.
+Flow is a “smart” type checker.
+And when I say smart, I mean really clever.</p>
+<p>Here’s a flow example:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// @flow</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> foo</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> 'hello world'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">foo </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 123</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<p>In the example above, flow will point out the obvious error of assigning a <code>number</code> value to a <code>string</code> type variable.</p>
+<p>But that’s not all.
+Flow recognises JS idioms and very dynamic code.
+And even without type annotations, it can figure out some problems in our code.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// @flow</span></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> foo</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">x</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> x </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 10</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#B392F0">foo</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'Hello, world!'</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<p>Here, flow understands that the operation performed and the data type provided are incompatible and so, will produce error.</p>
+<p>You can read more about flow, and its syntax in the <a href="https://flowtype.org/docs">flow docs</a>.</p>
+<hr>
+<h2 id="modern-js">Modern JS</h2>
+<p>By the word “Modern”, I am pointing towards the JS ecosystem in 2016.</p>
+<p>A few key players are ES5+, babel, webpack, react.
+And to make flow work in unison can be a real challenge.
+One can easily set up a webpack-babel based workflow, thanks to all the resources and reading material available online.</p>
+<p>To add flow to the mix, I have written a webpack plugin that will do the heavy lifting for us - <a href="https://github.com/zhirzh/flow-babel-webpack-plugin">flow-babel-webpack-plugin</a>.
+As you can judge by the name, it is meant to glue together flow, babel and webpack.</p>
+<h3 id="usage">Usage</h3>
+<h4 id="1-install-dependencies">1. Install dependencies</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#6A737D">  # Install FBWP</span></span>
+<span class="line"><span style="color:#B392F0">  npm</span><span style="color:#9ECBFF"> i</span><span style="color:#79B8FF"> -D</span><span style="color:#9ECBFF"> flow-babel-webpack-plugin</span></span></code></pre>
+<h4 id="2-setup-babel-and-flow">2. Setup babel and flow</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#6A737D">  # setup .flowconfig</span></span>
+<span class="line"><span style="color:#B392F0">  ./node_modules/.bin/flow</span><span style="color:#9ECBFF"> init</span><span style="color:#9ECBFF">  or</span><span style="color:#9ECBFF"> flow</span><span style="color:#9ECBFF"> init</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">  # .babelrc file</span></span>
+<span class="line"><span style="color:#E1E4E8">  {</span></span>
+<span class="line"><span style="color:#79B8FF">    ...</span></span>
+<span class="line"><span style="color:#B392F0">    "plugins"</span><span style="color:#9ECBFF"> :</span><span style="color:#E1E4E8"> [</span></span>
+<span class="line"><span style="color:#79B8FF">      ...</span></span>
+<span class="line"><span style="color:#B392F0">      "transform-flow-comments"</span></span>
+<span class="line"><span style="color:#E1E4E8">    ]</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span></code></pre>
+<h4 id="3-setup-webpack-config">3. Setup webpack config</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">  // webpack.config.js file</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> FlowBabelWebpackPlugin</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> require</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'flow-babel-webpack-plugin'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">  module</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">exports</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    ...</span></span>
+<span class="line"><span style="color:#E1E4E8">    plugins: [</span></span>
+<span class="line"><span style="color:#F97583">      ...</span></span>
+<span class="line"><span style="color:#F97583">      new</span><span style="color:#B392F0"> FlowBabelWebpackPlugin</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">    ],</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span></code></pre>
+<p>And that’s it!</p>
+<p>Now we can start adding flow annotations to our code and the next time we start webpack, BOOM! - type errors in the pretty red colour we all love/hate.</p>
+<p><img src="/media/2016-10-08-flowtype-and-modern-js/demo.png" alt=""></p>
+<hr>
+<h2 id="the-end">The End</h2>
+<p>Type checking is really useful in large softwares, and Flow is a remarkable tool that allows type checks.
+Being able to us it with babel and webpack is a win-win!</p>
+<p>Please do try <a href="https://github.com/zhirzh/flow-babel-webpack-plugin">flow-babel-webpack-plugin</a> and let me know if you any requests regarding the plugin.
+If you find any bugs, you know <a href="https://github.com/zhirzh/flow-babel-webpack-plugin/issues">where</a> to go.</p> <footer> <nav class="flex flex-wrap gap-x-10 gap-y-2">  <div class="ms-auto"> <a href="/my-blog/posts/2016-10-11-timing-controls/">Timing Controls</a>
+&rarr;
+</div> </nav> </footer> </article> <aside id="toc" class="prose dark:prose-invert sticky top-32 self-start text-xs leading-relaxed"> <div class="mb-4 text-xs">TABLE OF CONTENTS</div> <nav> <ul class="mt-0 mb-0 list-none ps-0 shadow-[-1px_0_0_0] shadow-slate-700"> <li data-depth="3" class="mt-1 mb-2 px-4"> <a href="#the-problem" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> The Problem </a>  </li><li data-depth="3" class="mt-1 mb-2 px-4"> <a href="#the-solution" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> The Solution </a>  </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#flowtype" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Flowtype </a>  </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#modern-js" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Modern JS </a> <ul class="mt-0 mb-0 list-none ps-0 shadow-[-1px_0_0_0] shadow-slate-700"> <li data-depth="3" class="mt-1 mb-2 px-4"> <a href="#usage" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Usage </a> <ul class="mt-0 mb-0 list-none ps-0 shadow-[-1px_0_0_0] shadow-slate-700"> <li data-depth="4" class="mt-1 mb-2 px-4"> <a href="#1-install-dependencies" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> 1. Install dependencies </a>  </li><li data-depth="4" class="mt-1 mb-2 px-4"> <a href="#2-setup-babel-and-flow" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> 2. Setup babel and flow </a>  </li><li data-depth="4" class="mt-1 mb-2 px-4"> <a href="#3-setup-webpack-config" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> 3. Setup webpack config </a>  </li> </ul> </li> </ul> </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#the-end" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> The End </a>  </li> </ul> </nav> </aside> <script type="module">const r=new Map,d=Array.from(document.querySelectorAll("#toc a"));d.forEach(e=>{const t=e.getAttribute("href").replace("#",""),c=document.querySelector(`[id="${t}"]`);c&&r.set(c,e)});const s=Array.from(r.keys());let n,i;window.addEventListener("scroll",()=>{const{scrollTop:e}=document.documentElement;console.log(e);const o=s.findLast(t=>t.offsetTop<=e+240);if(i!==o&&(i=o,n&&(delete n.dataset.active,n=void 0),o)){const t=r.get(o);n=t,t.dataset.active="true"}});{const e=document.createElement("div");Object.assign(e.style,{position:"fixed",zIndex:9999,top:"240px",left:0,right:0,height:"1px",backgroundColor:"rgba(255 0 0 / 0.5)"}),document.body.append(e)}</script> </div>  </body></html>

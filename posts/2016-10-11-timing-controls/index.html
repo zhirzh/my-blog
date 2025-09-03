@@ -1,0 +1,135 @@
+<!DOCTYPE html><html lang="en" class="scroll-pt-30 scroll-smooth"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.13.5"><title>Astro Basics</title><link rel="stylesheet" href="/my-blog/_astro/2016-10-08-flowtype-and-modern-js.B3-O7Wa6.css"></head> <body class="dark:bg-slate-900">  <div class="mx-auto grid max-w-5xl gap-x-10 py-30" style="grid-template-columns:minmax(0,1fr) 300px"> <article class="prose dark:prose-invert max-w-none"> <header> <h1>Timing Controls</h1> <time class="text-sm" datetime="2016-10-11T00:00:00.000Z"> October 11th, 2016 </time> </header> <p>JavaScript follows the Event-driven programming paradigm.
+This means that <em>actions</em> can activate <em>reactions</em>.
+We call these actions <code>events</code>, and reactions <code>callbacks</code>.
+A continuous flow of events is called an <code>event stream</code>.</p>
+<p>The speed at which these <em>actions</em> occur is out of our hand.
+But we can control when and how to activate the proper <em>reactions</em>.
+There are some techniques that provide us precise control.</p>
+<ol>
+<li>Throttle</li>
+<li>Debounce</li>
+<li>Immediate</li>
+</ol>
+<!-- preview -->
+<hr>
+<h2 id="throttle">Throttle</h2>
+<p>In modern browsers, a frame rate of 60fps is the target for smooth performance.
+This gives us a time budget of 16.7ms for the processing needed to respond to some event.</p>
+<p>If you have ever worked with <code>mousemove</code> event, you would know that this event is triggered multiple times per second.
+And if our callback needs more than 16.7ms, things start to get choppy.</p>
+<p>Throttle limits the number of reactions activated.
+We control how much time to wait before activating the next callback.</p>
+<h3 id="implementation">Implementation</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> delta</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> 1000</span><span style="color:#E1E4E8">; </span><span style="color:#6A737D">// wait 1000ms before next callback</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> then </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> log</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">  console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'foo'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> throttledLog</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> now</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> Date.</span><span style="color:#B392F0">now</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (now </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> then </span><span style="color:#F97583">>=</span><span style="color:#E1E4E8"> delta) {</span></span>
+<span class="line"><span style="color:#B392F0">    log</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    then </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> now;</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">window.onmousemove </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> throttledLog;</span></span></code></pre>
+<p>We can replace <code>delta</code> with <code>fps</code> and work out different code.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> fps</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> 60</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> throttledLog</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> now</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> Date.</span><span style="color:#B392F0">now</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">1000</span><span style="color:#F97583"> /</span><span style="color:#E1E4E8"> (now </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> then) </span><span style="color:#F97583">&#x3C;=</span><span style="color:#E1E4E8"> fps) {</span></span>
+<span class="line"><span style="color:#B392F0">    log</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    then </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> now;</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>We can also achieve the same result by using <code>setTimeout()</code>.
+Instead of checking for time difference, we check for state change.</p>
+<p>Initially, we say that it is safe to activate the callback.
+Once done, it is only safe to activate it again after <code>delta</code> time.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> delta</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> 1000</span><span style="color:#E1E4E8">; </span><span style="color:#6A737D">// wait 1000ms before next callback</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> safe </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> log</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">  console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'foo'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> throttledLog</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (safe) {</span></span>
+<span class="line"><span style="color:#B392F0">    log</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    safe </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#B392F0">    setTimeout</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">      safe </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }, delta);</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">window.onmousemove </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> throttledLog;</span></span></code></pre>
+<hr>
+<h2 id="debounce">Debounce</h2>
+<p>The term <em>de-bounce</em> comes form signal processing in electronics, where signal from a mechanical input is fed into a digital circuit.
+Pressing down on a mechanical button might produce multiple signals due of physical properties of the button (metal contacts, springs, mechanical wear etc).</p>
+<p>Debouncing means we group together the signals triggered within some small time range and consider only the last signal as the true signal.</p>
+<h3 id="implementation-1">Implementation</h3>
+<p>Debouncing is all about delaying the callback until the last event in a group occurs.
+We can use <code>setTimeout()</code> to delay the callback.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> delta</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> 1000</span><span style="color:#E1E4E8">; </span><span style="color:#6A737D">// wait 1000ms before next callback</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> timeoutID </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> log</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">  console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'foo'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> debouncedLog</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#B392F0">  clearTimeout</span><span style="color:#E1E4E8">(timeoutID); </span><span style="color:#6A737D">// reset timer</span></span>
+<span class="line"><span style="color:#E1E4E8">  timeoutID </span><span style="color:#F97583">=</span><span style="color:#B392F0"> setTimeout</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    // wait for some time</span></span>
+<span class="line"><span style="color:#6A737D">    // and check if event happens again</span></span>
+<span class="line"><span style="color:#B392F0">    log</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">  }, delta);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">window.onkeydown </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> debouncedLog;</span></span></code></pre>
+<hr>
+<h2 id="immediate">Immediate</h2>
+<p>Immediate is the opposite of Debounce.
+Instead of triggering the callback at the last event of the group, Immediate activates the callback at the first.</p>
+<h3 id="implementation-2">Implementation</h3>
+<p>Just like with Throttle, we need a state variable to check whether we should activate our callback or not.
+We also use <code>setTimeout()</code> to update the state variable.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> delta</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> 1000</span><span style="color:#E1E4E8">; </span><span style="color:#6A737D">// wait 1000ms before next callback</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> timeoutID </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> safe </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> log</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">  console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'foo'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> immediatedLog</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (safe) {</span></span>
+<span class="line"><span style="color:#B392F0">    log</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    safe </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">  clearTimeout</span><span style="color:#E1E4E8">(timeoutID);</span></span>
+<span class="line"><span style="color:#E1E4E8">  timeoutID </span><span style="color:#F97583">=</span><span style="color:#B392F0"> setTimeout</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    safe </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">  }, delta);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">window.onkeydown </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> immediatedLog;</span></span></code></pre>
+<hr>
+<h2 id="the-end">The End</h2>
+<p>In this post, we have explored the most common techniques used as timing functions.</p>
+<p>In the [next part], we will improve the code into higher order functions and look at the problems that might arise with these simple implementations.</p>
+<p>[next part]: {% post_url 2016-10-18-timing-controls-2 %} “Timing Controls”</p> <footer> <nav class="flex flex-wrap gap-x-10 gap-y-2"> <div>
+&larr;
+<a href="/my-blog/posts/2016-10-08-flowtype-and-modern-js/">Flowtype and modern JS</a> </div> <div class="ms-auto"> <a href="/my-blog/posts/2016-10-18-timing-controls-2/">Timing Controls - Part 2</a>
+&rarr;
+</div> </nav> </footer> </article> <aside id="toc" class="prose dark:prose-invert sticky top-32 self-start text-xs leading-relaxed"> <div class="mb-4 text-xs">TABLE OF CONTENTS</div> <nav> <ul class="mt-0 mb-0 list-none ps-0 shadow-[-1px_0_0_0] shadow-slate-700"> <li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#throttle" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Throttle </a> <ul class="mt-0 mb-0 list-none ps-0 shadow-[-1px_0_0_0] shadow-slate-700"> <li data-depth="3" class="mt-1 mb-2 px-4"> <a href="#implementation" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Implementation </a>  </li> </ul> </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#debounce" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Debounce </a> <ul class="mt-0 mb-0 list-none ps-0 shadow-[-1px_0_0_0] shadow-slate-700"> <li data-depth="3" class="mt-1 mb-2 px-4"> <a href="#implementation-1" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Implementation </a>  </li> </ul> </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#immediate" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Immediate </a> <ul class="mt-0 mb-0 list-none ps-0 shadow-[-1px_0_0_0] shadow-slate-700"> <li data-depth="3" class="mt-1 mb-2 px-4"> <a href="#implementation-2" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Implementation </a>  </li> </ul> </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#the-end" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> The End </a>  </li> </ul> </nav> </aside> <script type="module">const r=new Map,d=Array.from(document.querySelectorAll("#toc a"));d.forEach(e=>{const t=e.getAttribute("href").replace("#",""),c=document.querySelector(`[id="${t}"]`);c&&r.set(c,e)});const s=Array.from(r.keys());let n,i;window.addEventListener("scroll",()=>{const{scrollTop:e}=document.documentElement;console.log(e);const o=s.findLast(t=>t.offsetTop<=e+240);if(i!==o&&(i=o,n&&(delete n.dataset.active,n=void 0),o)){const t=r.get(o);n=t,t.dataset.active="true"}});{const e=document.createElement("div");Object.assign(e.style,{position:"fixed",zIndex:9999,top:"240px",left:0,right:0,height:"1px",backgroundColor:"rgba(255 0 0 / 0.5)"}),document.body.append(e)}</script> </div>  </body></html>

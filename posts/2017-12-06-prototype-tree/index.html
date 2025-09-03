@@ -1,0 +1,169 @@
+<!DOCTYPE html><html lang="en" class="scroll-pt-30 scroll-smooth"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.13.5"><title>Astro Basics</title><link rel="stylesheet" href="/my-blog/_astro/2016-10-08-flowtype-and-modern-js.B3-O7Wa6.css"></head> <body class="dark:bg-slate-900">  <div class="mx-auto grid max-w-5xl gap-x-10 py-30" style="grid-template-columns:minmax(0,1fr) 300px"> <article class="prose dark:prose-invert max-w-none"> <header> <h1>Prototype Tree</h1> <time class="text-sm" datetime="2017-12-06T00:00:00.000Z"> December 6th, 2017 </time> </header> <p>Anyone who has worked with JS long enough knows something or the other about delegation, prototype chains, <a href="http://2ality.com/2012/10/dunder.html">dunder proto</a> and other similar things.
+There are times when I wonder how complex and deep this chaining can be.
+This past week, however, my curiosity got the best of me and I just had to find the answer for myself.</p>
+<!-- preview -->
+<p>I wrote a script that scans the global namespace and generates an <em>inheritance</em> tree (prototype tree, actually).</p>
+<p>There are a few fundamental properties of JS (and probably Java too):</p>
+<ol>
+<li>Every <em>thing</em> is an object.</li>
+<li>All objects delegate to some parent class.</li>
+<li>All delegation chains end at the same <code>null</code>.</li>
+</ol>
+<!-- 4. All objects have the common ancestor [`Object` class]\*. -->
+<p>The function <code>parse</code> recursively traverses up a <code>class</code>’s prototype chain and populates a tree structure in <code>data</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> parse</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">data</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">Class</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (Class </span><span style="color:#F97583">===</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> data.children;</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> parentPrototype</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> Object.</span><span style="color:#B392F0">getPrototypeOf</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">Class</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">prototype</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> parentClass</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> parentPrototype </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> parentPrototype.</span><span style="color:#79B8FF">constructor</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> prevLevel</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> parse</span><span style="color:#E1E4E8">(data, parentClass);</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> node</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> prevLevel.</span><span style="color:#B392F0">find</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">n</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> n.name </span><span style="color:#F97583">===</span><span style="color:#E1E4E8"> Class.name);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (node </span><span style="color:#F97583">!==</span><span style="color:#79B8FF"> undefined</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> node.children;</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> newNode</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    name: Class.name,</span></span>
+<span class="line"><span style="color:#E1E4E8">    children: [],</span></span>
+<span class="line"><span style="color:#E1E4E8">  };</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  prevLevel.</span><span style="color:#B392F0">push</span><span style="color:#E1E4E8">(newNode);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> newNode.children;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>This works perfect in browsers because everything that is a part of the JS execution environment, BOM, DOM and CSSOM reside under the global scope <code>window</code>.
+You can see the prototype tree below or in a
+<a href="https://zhirzh.github.io/prototype-tree/build/index.html?data=browser" target="_blank">new tab</a>.</p>
+<iframe class="demo" frameborder="0" src="https://zhirzh.github.io/prototype-tree/build/index.html?data=browser&#x26;iframe" style="height: 400px"></iframe>
+<p>There are, however, some differences in the structures present in the global scope.
+Here’s a list of a few examples:</p>
+<ul>
+<li>Different Browsers - The <a href="https://developer.mozilla.org/docs/Web/API/HTMLMediaElement/captureStream"><code>captureStream()</code></a> method of <code>&#x3C;canvas /></code> element returns an instance of <code>CanvasCaptureMediaStreamTrack</code> on Chrome and of <code>CanvasCaptureMediaStream</code> on Firefox.
+There are many more differences, especially in the availability of SVG elements.</li>
+<li>Browser Versions - As browsers progress, new features are added and older ones canned</li>
+<li>Different Platform - Chrome on android devices has the <a href="https://developer.mozilla.org/docs/Web/API/Web_Bluetooth_API">Bluetooth</a> API, Linux does not.</li>
+<li>Protocol - Chrome allows access to the new <a href="https://developer.mozilla.org/docs/Web/API/Credential_Management_API">Credential</a> and <a href="https://developer.mozilla.org/docs/Web/API/MediaKeys">MediaKeys</a> APIs on secure websites (HTTPS protocol).</li>
+<li>Different Websites - It is no surprise that websites can and will pollute the global scope with things they need.
+In all fairness though, this isn’t all too important.</li>
+</ul>
+<br>
+<h2 id="nodejs">NodeJS</h2>
+<p>Things are a bit different for NodeJS.
+The default execution environment only contains the language’s minimal feature set.
+All additional features are in separate modules.
+Naively running the code above results in a
+<a href="https://zhirzh.github.io/prototype-tree/build/index.html?data=node-sparse" target="_blank">sparse tree</a>.</p>
+<iframe class="demo" frameborder="0" src="https://zhirzh.github.io/prototype-tree/build/index.html?data=node-sparse&#x26;iframe" style="height: 400px"></iframe>
+<p>If we want to <em>look</em> at a module’s structures, we must import the module and traverse it.
+This might sound a simple thing to do, but can make the code really messy.
+Instead, we will invert the module inside-out, adding all its structures to the global scope.</p>
+<p>When polluting the global scope, we need to be wary of name clashes and overwrites.
+This can be avoided by adding the module name to the structure name, i.e., scoping it.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> modNames</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">'assert'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'async_hooks'</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">...</span><span style="color:#9ECBFF">'vm'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'zlib'</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">modNames.</span><span style="color:#B392F0">forEach</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">modName</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> mod</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> require</span><span style="color:#E1E4E8">(modName);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  Object.</span><span style="color:#B392F0">getOwnPropertyNames</span><span style="color:#E1E4E8">(mod)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">filter</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">propName</span><span style="color:#F97583"> =></span><span style="color:#9ECBFF"> /</span><span style="color:#79B8FF">[A-Z]</span><span style="color:#9ECBFF">/</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">test</span><span style="color:#E1E4E8">(propName[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">]))</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">forEach</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">propName</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">      const</span><span style="color:#79B8FF"> prop</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> mod[propName];</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">      if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">typeof</span><span style="color:#E1E4E8"> prop.name </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> 'string'</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> prop.name.</span><span style="color:#79B8FF">length</span><span style="color:#F97583"> ></span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        prop.scopedName </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> prop.name </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> '['</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> modName </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> ']'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">      const</span><span style="color:#79B8FF"> scopedPropName</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> propName </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> '['</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> modName </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> ']'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">      global[scopedPropName] </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> prop;</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<p>After adding the code above, we get the
+<a href="https://zhirzh.github.io/prototype-tree/build/index.html?data=node" target="_blank">full tree</a>.</p>
+<p>Notice how the class <code>Server</code> is present at multiple branches and levels in the tree.
+Without scoping the class names, <code>tls</code> would’ve overwritten <code>http</code> server node.</p>
+<iframe class="demo" frameborder="0" src="https://zhirzh.github.io/prototype-tree/build/index.html?data=node&#x26;iframe" style="height: 400px"></iframe>
+<hr>
+<h3 id="addendum">Addendum</h3>
+<p>There’s one more things I’d like to add.
+It isn’t a coincidence that everything is connected to the <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object"><code>Object</code> class</a>.
+This is by design of the language.</p>
+<p>We can also create orphan objects - objects not connected to <code>Object</code>.
+By delegating to orphans, we can write classes that are free of any delegation based <em>side effects</em>.
+This is great for someone who wants to create <a href="https://www.javatpoint.com/interface-in-java">interfaces</a> or <a href="https://www.javatpoint.com/abstract-class-in-java">abstract classes</a>, since</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> orphan</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> Object.</span><span style="color:#B392F0">create</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">orphan.foo </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 111</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(orphan);</span></span>
+<span class="line"><span style="color:#6A737D">// { foo: 111 }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(Object.</span><span style="color:#B392F0">getPrototypeOf</span><span style="color:#E1E4E8">(orphan));</span></span>
+<span class="line"><span style="color:#6A737D">// null</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> obj</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> Object.</span><span style="color:#B392F0">create</span><span style="color:#E1E4E8">(orphan);</span></span>
+<span class="line"><span style="color:#E1E4E8">obj.bar </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 222</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(obj);</span></span>
+<span class="line"><span style="color:#6A737D">// { bar: 222 }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(Object.</span><span style="color:#B392F0">getPrototypeOf</span><span style="color:#E1E4E8">(obj));</span></span>
+<span class="line"><span style="color:#6A737D">// { foo: 111 }  &#x3C;---  orphan</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Animal</span><span style="color:#E1E4E8"> {}</span></span>
+<span class="line"><span style="color:#E1E4E8">Object.</span><span style="color:#B392F0">setPrototypeOf</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">Animal</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">prototype</span><span style="color:#E1E4E8">, orphan);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Human</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> Animal</span><span style="color:#E1E4E8"> {}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> Bacteria</span><span style="color:#E1E4E8">() {}</span></span>
+<span class="line"><span style="color:#E1E4E8">Object.</span><span style="color:#B392F0">setPrototypeOf</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">Bacteria</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">prototype</span><span style="color:#E1E4E8">, obj);</span></span>
+<span class="line"><span style="color:#6A737D">// Bacteria.prototype = Object.create(obj);  &#x3C;---  also works</span></span></code></pre>
+<iframe class="demo" frameborder="0" src="https://zhirzh.github.io/prototype-tree/build/index.html?data=orphan&#x26;iframe" style="height: 400px"></iframe>
+<p><strong>Note</strong>: You must <strong>never</strong> use dunder proto (<code>__proto__</code>).
+Its behavior has only been standardized as a legacy feature.
+Instead, when working with <code>[[Prototype]]</code>, use:</p>
+<ul>
+<li><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object/getPrototypeOf"><code>Object.getPrototypeOf()</code></a> for reading</li>
+<li>and <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object/setPrototypeOf"><code>Object.setPrototypeOf()</code></a> for writing</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> foo</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> Object.</span><span style="color:#B392F0">create</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(foo.</span><span style="color:#79B8FF">__proto__</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">// undefined  &#x3C;---  should be `null`</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(Object.</span><span style="color:#B392F0">getPrototypeOf</span><span style="color:#E1E4E8">(foo));</span></span>
+<span class="line"><span style="color:#6A737D">// null  &#x3C;---  this is correct</span></span></code></pre>
+<p>You can read more about this <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object/proto">on MDN</a>.</p>
+<hr>
+<h2 id="the-end">The End</h2>
+<p>Plotting these beautiful <a href="http://bl.ocks.org/robschmuecker/7880033">D3 tree charts</a> revealed more things about JS than I originally sought.</p>
+<p>The minimal set is tiny compared.
+Everything on the sparse tree can be grouped into:</p>
+<ul>
+<li><strong>Primitive Data Types</strong> - Number, String, Boolean …</li>
+<li><strong>Abstract Data Types</strong> - Function, Object …</li>
+<li><strong>Container Data Types</strong> - Array, Map, Set …</li>
+<li><strong>Timers</strong> - setTimeout, setInterval …</li>
+<li><strong>Errors</strong> - SyntaxError, ReferenceError …</li>
+<li><strong>Misc items</strong> - Promise, RegExp, TypedArrays …</li>
+</ul>
+<p>I also realised just how huge BOM and DOM are.
+Every entity in HTML, SVG, CSS, XML entity has its own class.
+Every WebAPI comes with its structures and each one of them has its class.</p>
+<p>You can further explore the graphs or even plot your own.
+The code and example links are below:</p>
+<ul>
+<li>Code: <a href="https://github.com/zhirzh/zhirzh.github.io/tree/master/gists/2017-12-06-prototype-tree/">gists/2017-12-06-prototype-tree</a></li>
+<li>Demos:
+<ul>
+<li><a href="https://zhirzh.github.io/prototype-tree/build/index.html?data=browser">Browser</a></li>
+<li><a href="https://zhirzh.github.io/prototype-tree/build/index.html?data=node-sparse">Node (sparse)</a></li>
+<li><a href="https://zhirzh.github.io/prototype-tree/build/index.html?data=node">Node</a></li>
+<li><a href="https://zhirzh.github.io/prototype-tree/build/index.html?data=orphan">Orphan</a></li>
+</ul>
+</li>
+</ul> <footer> <nav class="flex flex-wrap gap-x-10 gap-y-2"> <div>
+&larr;
+<a href="/my-blog/posts/2017-11-30-cra-with-ssr/">Making CRA apps work with SSR</a> </div>  </nav> </footer> </article> <aside id="toc" class="prose dark:prose-invert sticky top-32 self-start text-xs leading-relaxed"> <div class="mb-4 text-xs">TABLE OF CONTENTS</div> <nav> <ul class="mt-0 mb-0 list-none ps-0 shadow-[-1px_0_0_0] shadow-slate-700"> <li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#nodejs" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> NodeJS </a> <ul class="mt-0 mb-0 list-none ps-0 shadow-[-1px_0_0_0] shadow-slate-700"> <li data-depth="3" class="mt-1 mb-2 px-4"> <a href="#addendum" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Addendum </a>  </li> </ul> </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#the-end" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> The End </a>  </li> </ul> </nav> </aside> <script type="module">const r=new Map,d=Array.from(document.querySelectorAll("#toc a"));d.forEach(e=>{const t=e.getAttribute("href").replace("#",""),c=document.querySelector(`[id="${t}"]`);c&&r.set(c,e)});const s=Array.from(r.keys());let n,i;window.addEventListener("scroll",()=>{const{scrollTop:e}=document.documentElement;console.log(e);const o=s.findLast(t=>t.offsetTop<=e+240);if(i!==o&&(i=o,n&&(delete n.dataset.active,n=void 0),o)){const t=r.get(o);n=t,t.dataset.active="true"}});{const e=document.createElement("div");Object.assign(e.style,{position:"fixed",zIndex:9999,top:"240px",left:0,right:0,height:"1px",backgroundColor:"rgba(255 0 0 / 0.5)"}),document.body.append(e)}</script> </div>  </body></html>

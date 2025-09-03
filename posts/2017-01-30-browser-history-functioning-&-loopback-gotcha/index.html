@@ -1,0 +1,128 @@
+<!DOCTYPE html><html lang="en" class="scroll-pt-30 scroll-smooth"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.13.5"><title>Astro Basics</title><link rel="stylesheet" href="/my-blog/_astro/2016-10-08-flowtype-and-modern-js.B3-O7Wa6.css"></head> <body class="dark:bg-slate-900">  <div class="mx-auto grid max-w-5xl gap-x-10 py-30" style="grid-template-columns:minmax(0,1fr) 300px"> <article class="prose dark:prose-invert max-w-none"> <header> <h1>Browser history functioning and loopback gotcha</h1> <time class="text-sm" datetime="2017-01-30T00:00:00.000Z"> January 30th, 2017 </time> </header> <p>According to MDN,</p>
+<blockquote>
+<p>The <a href="https://developer.mozilla.org/en/docs/Web/API/History"><code>History</code></a> interface allows to manipulate the browser <em>session history</em>, that is the pages visited in the tab or frame that the current page is loaded in.</p>
+</blockquote>
+<p>But how exactly does the browser keep track of the visited pages?</p>
+<!-- preview -->
+<p>Without dwelling into technicalities, it is safe to assume that a doubly linked list is being used under the hood.
+A doubly linked list (abbreviated as <em>DLL</em>) has the following benefits over a singly linked list or a simple array:</p>
+<ul>
+<li>Dynamically add and remove elements (beats arrays)</li>
+<li>Bi-directional movement is easy (beats singly linked list)</li>
+</ul>
+<hr>
+<h2 id="push">Push</h2>
+<p>When we visits a new url, a new entry is added to the DLL.
+An application can use <a href="https://developer.mozilla.org/en/docs/Web/API/History/pushState"><code>history.pushState()</code></a> to simulate url based navigation.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#E1E4E8">element.</span><span style="color:#B392F0">onclick</span><span style="color:#F97583"> =</span><span style="color:#F97583"> function</span><span style="color:#B392F0"> handleClick</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">  history.</span><span style="color:#B392F0">pushState</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">    state, </span><span style="color:#6A737D">// tiny session storage state</span></span>
+<span class="line"><span style="color:#E1E4E8">    title,</span></span>
+<span class="line"><span style="color:#E1E4E8">    url </span><span style="color:#6A737D">// destination URL</span></span>
+<span class="line"><span style="color:#E1E4E8">  );</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span></code></pre>
+<p>We can travel along the DLL and re-visit the pages.
+<code>history</code> object has 3 methods for travelling:</p>
+<ul>
+<li><a href="https://developer.mozilla.org/en/docs/Web/API/History/go"><code>history.go()</code></a></li>
+<li><a href="https://developer.mozilla.org/en/docs/Web/API/History/back"><code>history.back()</code></a></li>
+<li><a href="https://developer.mozilla.org/en/docs/Web/API/History/forward"><code>history.forward()</code></a></li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// move relative to the current entry</span></span>
+<span class="line"><span style="color:#E1E4E8">history.</span><span style="color:#B392F0">go</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">history.</span><span style="color:#B392F0">go</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">history.</span><span style="color:#B392F0">go</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">history.</span><span style="color:#B392F0">go</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">-</span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">history.</span><span style="color:#B392F0">go</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">history.</span><span style="color:#B392F0">back</span><span style="color:#E1E4E8">(); </span><span style="color:#6A737D">// equivalent to history.go(-1)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">history.</span><span style="color:#B392F0">forward</span><span style="color:#E1E4E8">(); </span><span style="color:#6A737D">// equivalent to history.go(1)</span></span></code></pre>
+<hr>
+<h2 id="pop">Pop</h2>
+<p>But these traversal methods must be invoked using JS (example: a button click).
+If we use the browser’s navigation buttons, we can still intercept the action by listening for the <a href="https://developer.mozilla.org/en/docs/Web/Events/popstate"><code>popstate</code></a> event.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#E1E4E8">window.</span><span style="color:#B392F0">onpopstate</span><span style="color:#F97583"> =</span><span style="color:#FFAB70"> e</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(document.location, e.state);</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span></code></pre>
+<hr>
+<h2 id="branching">Branching</h2>
+<p>Apart from moving back-and-forth, we can also branch <em>out of</em> the current list.
+If we are on some intermediate entry and navigate to a new URL (not back/forward movement, but redirection), then the subsequent entries will be lost.
+And a new branch will emerge, with the previous entries.</p>
+<hr>
+<h2 id="demo">Demo</h2>
+<p><em>Note:</em> Use the <code>BACK</code> and <code>FORWARD</code> buttons provided in the demo and <strong>not</strong> the browser’s buttons.</p>
+<iframe id="demo" class="demo" frameborder="0" sandbox="allow-scripts allow-same-origin" src="/gists/2017-01-30-browser-history-functioning-&#x26;-loopback-gotcha/demo.html#/home"></iframe>
+<hr>
+<h2 id="the-gotcha">The Gotcha</h2>
+<p>When working with the history API, it is possible to mess things up - perhaps by not connecting the browser’s navigation tools to the app, or by create loopback loops.</p>
+<p><em>Loop… what?</em></p>
+<p>Picture this: We make a web app, possibly a PWA, and there’s a bug in the routing logic.
+<em>Visiting</em> the page <code>/foo</code> redirects us to some other path, <code>/bar</code>.
+If we now try to go back to <code>/foo</code>… <strong>BAM!</strong>. <code>/foo</code> redirects us back to <code>/bar</code>.</p>
+<p>Or how about this: <em>Interacting</em> with the page <code>/foo</code>, somehow, redirects us to path <code>/bar</code>.
+But we don’t want to be on <code>/bar</code>, and there’s a <code>cancel</code> or <code>no thanks</code> button in the app.</p>
+<p>We press the button, and instead of going back to <code>/foo</code>, we are redirected to <code>/foo</code>.
+If we now go <code>back</code>… <strong>BAMMMM!</strong>. We leave the new <code>/foo</code>, go back to <code>/bar</code>, again deny to use the services provided by <code>/bar</code> and are redirected to - you guessed it - a new copy of <code>/foo</code>.</p>
+<hr>
+<p>Still with me? Sounds confusing? How ‘bout a demo, eh?</p>
+<p>In the demo below, try cancelling the login prompt and then going back.
+You will find it <em>IMPOSSIBLE</em>.</p>
+<iframe id="demo-bug" class="demo" frameborder="0" sandbox="allow-scripts allow-same-origin" src="/gists/2017-01-30-browser-history-functioning-&#x26;-loopback-gotcha/demo-bug.html#/home"></iframe>
+<hr>
+<p>This abnormality is located in <a href="https://github.com/zhirzh/zhirzh.github.io/blob/master/gists/2017-01-30-browser-history-functioning-&#x26;-loopback-gotcha/demo-bug.html#L56-L59">lines 56-59</a> and can easily be fixed.
+Instead of using <code>history.pushState()</code>, use <code>history.back()</code>.
+The solution is used <a href="https://github.com/zhirzh/zhirzh.github.io/blob/master/gists/2017-01-30-browser-history-functioning-&#x26;-loopback-gotcha/demo-fixed.html#L56-L58">here</a>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="diff"><code><span class="line"><span style="color:#E1E4E8">    function loginRedirect() {</span></span>
+<span class="line"><span style="color:#FDAEB7"><span style="user-select: none;">-</span>      var backUrl = location.hash.match(/ret=(.*)/)[1];</span></span>
+<span class="line"><span style="color:#FDAEB7"><span style="user-select: none;">-</span>      history.pushState({}, '', backUrl);</span></span>
+<span class="line"><span style="color:#85E89D"><span style="user-select: none;">+</span>      history.back();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<iframe id="demo-fixed" class="demo" frameborder="0" sandbox="allow-scripts allow-same-origin" src="/gists/2017-01-30-browser-history-functioning-&#x26;-loopback-gotcha/demo-fixed.html#/home"></iframe>
+<hr>
+<h2 id="the-end">The End</h2>
+<p>And that’s the end of it.
+The problem demonstrated here exists in the production build of an actual product online - organisation kept anonymous for obvious reasons.</p>
+<p>If you are interested in the implementations, here’s the code:</p>
+<ul>
+<li><a href="https://github.com/zhirzh/zhirzh.github.io/blob/master/gists/2017-01-30-browser-history-functioning-&#x26;-loopback-gotcha/demo.html">Basic demo</a></li>
+<li><a href="https://github.com/zhirzh/zhirzh.github.io/blob/master/gists/2017-01-30-browser-history-functioning-&#x26;-loopback-gotcha/demo-bug.html">Bug</a></li>
+<li><a href="https://github.com/zhirzh/zhirzh.github.io/blob/master/gists/2017-01-30-browser-history-functioning-&#x26;-loopback-gotcha/demo-fixed.html">Bugfix</a></li>
+</ul>
+<script>
+  window.onmessage = (e) => {
+    if (!e.data || typeof e.data.target !== 'string') {
+      return;
+    }
+
+    let iframe;
+
+    switch (true) {
+      case e.data.target.includes('demo.html'):
+        iframe = document.querySelector('iframe#demo');
+        break;
+
+      case e.data.target.includes('demo-bug.html'):
+        iframe = document.querySelector('iframe#demo-bug');
+        break;
+
+      case e.data.target.includes('demo-fixed.html'):
+        iframe = document.querySelector('iframe#demo-fixed');
+        break;
+
+      default:
+        iframe = null;
+    }
+
+    if (iframe === null) {
+      return;
+    }
+
+    iframe.style.height = (e.data.height + 20) + 'px';
+  }
+</script> <footer> <nav class="flex flex-wrap gap-x-10 gap-y-2"> <div>
+&larr;
+<a href="/my-blog/posts/2017-01-27-animating-dots-&#38;-dashes/">Animating Dots &amp; Dashes</a> </div> <div class="ms-auto"> <a href="/my-blog/posts/2017-05-25-react-router-twitter-pinterest-style/">react-router in Twitter and Pinterest style</a>
+&rarr;
+</div> </nav> </footer> </article> <aside id="toc" class="prose dark:prose-invert sticky top-32 self-start text-xs leading-relaxed"> <div class="mb-4 text-xs">TABLE OF CONTENTS</div> <nav> <ul class="mt-0 mb-0 list-none ps-0 shadow-[-1px_0_0_0] shadow-slate-700"> <li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#push" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Push </a>  </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#pop" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Pop </a>  </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#branching" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Branching </a>  </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#demo" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Demo </a>  </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#the-gotcha" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> The Gotcha </a>  </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#the-end" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> The End </a>  </li> </ul> </nav> </aside> <script type="module">const r=new Map,d=Array.from(document.querySelectorAll("#toc a"));d.forEach(e=>{const t=e.getAttribute("href").replace("#",""),c=document.querySelector(`[id="${t}"]`);c&&r.set(c,e)});const s=Array.from(r.keys());let n,i;window.addEventListener("scroll",()=>{const{scrollTop:e}=document.documentElement;console.log(e);const o=s.findLast(t=>t.offsetTop<=e+240);if(i!==o&&(i=o,n&&(delete n.dataset.active,n=void 0),o)){const t=r.get(o);n=t,t.dataset.active="true"}});{const e=document.createElement("div");Object.assign(e.style,{position:"fixed",zIndex:9999,top:"240px",left:0,right:0,height:"1px",backgroundColor:"rgba(255 0 0 / 0.5)"}),document.body.append(e)}</script> </div>  </body></html>

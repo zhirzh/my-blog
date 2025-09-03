@@ -1,0 +1,31 @@
+<!DOCTYPE html><html lang="en" class="scroll-pt-30 scroll-smooth"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.13.5"><title>Astro Basics</title><link rel="stylesheet" href="/my-blog/_astro/2016-10-08-flowtype-and-modern-js.B3-O7Wa6.css"></head> <body class="dark:bg-slate-900">  <div class="mx-auto grid max-w-5xl gap-x-10 py-30" style="grid-template-columns:minmax(0,1fr) 300px"> <article class="prose dark:prose-invert max-w-none"> <header> <h1>The correct blur</h1> <time class="text-sm" datetime="2017-07-30T00:00:00.000Z"> July 30th, 2017 </time> </header> <p>In the past week, I learned that the RGB values stored in digital media are not the same as they were recorded.
+This isn’t some lossy compression algorithm artifact, but rather a clever tactic.
+The range of all possible intensity values is reduced.</p>
+<p>In the days when storage spaces were tiny and these <em>adjustments</em> helped.
+But the same adjustments can hinder photo editing processes.</p>
+<!-- preview -->
+<p>Here’s the full explanation by <a href="https://twitter.com/minutephysics">Henry Reich (minutephysics)</a>.</p>
+<div style="position: relative; width: 100%; height: 0px; padding-bottom: 60%; margin: 50px 0;">
+	<iframe src="https://www.youtube.com/embed/LKnqECcg6Gw?rel=0" frameborder="0" allowfullscreen style="width: 100%; height: auto;"></iframe>
+</div>
+<p>The gist of the process is to take square-roots of the raw pixels when saving the file and when displaying the stored files, square the stored values (since they were rooted initially).</p>
+<p><img src="/media/2017-07-30-correct-blur/1.png" alt=""></p>
+<p>The problem occurs when editing a picture involves direct pixel manipulations.
+Any transform can yield bad results if applied incorrectly.</p>
+<p><img src="/media/2017-07-30-correct-blur/2.png" alt=""></p>
+<p>Blurring, for instance, is done by replacing each pixel with an <em>average</em> of the pixel and the neighboring pixels.
+The averaging must be applied to the raw pixels, not their square-roots.</p>
+<p>This means that squaring be done before the kernel convolutions and then take roots before saving the file.</p>
+<p>I’ve made a simple <a href="https://github.com/zhirzh/correct-blur">tool</a> to visualise the difference that squaring the pixels before transformations makes.
+You can use it <a href="https://zhirzh.github.io/correct-blur/dist">here</a>.</p>
+<h3 id="is-it-worth-it">Is it worth it?</h3>
+<p>Not really.</p>
+<p>This is something that you never even knew you <em>never</em> knew.
+And now that you do know about it, this might bug you a little.</p>
+<p>But the real problem is speed.
+A simple 16MP image has more than a million pixels. Each of those pixel must be squared and rooted.
+And as image sizes grow, these extra steps will slow things down further down.</p> <footer> <nav class="flex flex-wrap gap-x-10 gap-y-2"> <div>
+&larr;
+<a href="/my-blog/posts/2017-07-22-obfuscation-with-protext/">Obfuscation with Protext</a> </div> <div class="ms-auto"> <a href="/my-blog/posts/2017-08-27-tiny-transfers/">Tiny transfers</a>
+&rarr;
+</div> </nav> </footer> </article> <aside id="toc" class="prose dark:prose-invert sticky top-32 self-start text-xs leading-relaxed"> <div class="mb-4 text-xs">TABLE OF CONTENTS</div> <nav> <ul class="mt-0 mb-0 list-none ps-0 shadow-[-1px_0_0_0] shadow-slate-700"> <li data-depth="3" class="mt-1 mb-2 px-4"> <a href="#is-it-worth-it" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Is it worth it? </a>  </li> </ul> </nav> </aside> <script type="module">const r=new Map,d=Array.from(document.querySelectorAll("#toc a"));d.forEach(e=>{const t=e.getAttribute("href").replace("#",""),c=document.querySelector(`[id="${t}"]`);c&&r.set(c,e)});const s=Array.from(r.keys());let n,i;window.addEventListener("scroll",()=>{const{scrollTop:e}=document.documentElement;console.log(e);const o=s.findLast(t=>t.offsetTop<=e+240);if(i!==o&&(i=o,n&&(delete n.dataset.active,n=void 0),o)){const t=r.get(o);n=t,t.dataset.active="true"}});{const e=document.createElement("div");Object.assign(e.style,{position:"fixed",zIndex:9999,top:"240px",left:0,right:0,height:"1px",backgroundColor:"rgba(255 0 0 / 0.5)"}),document.body.append(e)}</script> </div>  </body></html>

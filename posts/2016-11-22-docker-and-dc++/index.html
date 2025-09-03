@@ -1,0 +1,31 @@
+<!DOCTYPE html><html lang="en" class="scroll-pt-30 scroll-smooth"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.13.5"><title>Astro Basics</title><link rel="stylesheet" href="/my-blog/_astro/2016-10-08-flowtype-and-modern-js.B3-O7Wa6.css"></head> <body class="dark:bg-slate-900">  <div class="mx-auto grid max-w-5xl gap-x-10 py-30" style="grid-template-columns:minmax(0,1fr) 300px"> <article class="prose dark:prose-invert max-w-none"> <header> <h1>Docker and DC++</h1> <time class="text-sm" datetime="2016-11-22T00:00:00.000Z"> November 22nd, 2016 </time> </header> <p>When I first started using <a href="https://www.docker.com/">Docker</a>, I was unable to use <a href="https://launchpad.net/linuxdcpp/">LinuxDC++</a> (my DC++ client).
+I kept getting this pesky error.</p>
+<blockquote>
+<p>Connect failed: No route to host</p>
+</blockquote>
+<p>So I did what most of us would do in such a situation: <code>purge and install</code>.
+Nothing happened.</p>
+<p>Then I went to the internet, asking for help.
+People suggested that there’s something wrong with my firewall config, that my <code>iptables</code> rules were messed up.
+But that wasn’t the case.</p>
+<p>I installed other DC++ clients - <a href="https://github.com/eiskaltdcpp/eiskaltdcpp/">EiskaltDC++</a>, <a href="http://wxdcgui.sourceforge.net/">Valknut</a> - hoping that there’s something wrong with my original client.
+But I was let down, yet again.</p>
+<p>I thought to myself, <em>maybe I don’t need</em> docker.</p>
+<!-- preview -->
+<hr>
+<h2 id="later-that-day">Later that day…</h2>
+<p>… I asked my friend <a href="http://reachtarunhere.github.io/about/">Tarun</a> about the same and, lo and behold, the solution arrives (after a bit of confusion due to communication gap).
+All I had to do was disable docker’s network interface - that’s it!</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> sudo</span><span style="color:#9ECBFF"> ifconfig</span><span style="color:#9ECBFF"> docker0</span><span style="color:#9ECBFF"> down</span></span></code></pre>
+<p>And all was back to normal.</p>
+<p><img src="/media/2016-11-22-docker-and-dc++/chat.png" alt=""></p>
+<hr>
+<h2 id="why-the-problem-at-all">Why the problem at all?</h2>
+<p>Docker creates a bridged network interface which it uses to communicate with the host OS.
+And for some reason, LinuxDC++ binds to that interface, ditching the ethernet/wifi one.</p>
+<p>Although I am still new to docker, I have a strong feeling that there’s some config option that prevents this issue from happening.
+I was hoping you could tell me what it was, dear reader.</p> <footer> <nav class="flex flex-wrap gap-x-10 gap-y-2"> <div>
+&larr;
+<a href="/my-blog/posts/2016-11-10-react-angular-trends-phenomenon/">Weird phenomenon in Google Trends for ReactJS and AngularJS</a> </div> <div class="ms-auto"> <a href="/my-blog/posts/2017-01-02-ssh-into-private-machines/">SSH Into Private Machines</a>
+&rarr;
+</div> </nav> </footer> </article> <aside id="toc" class="prose dark:prose-invert sticky top-32 self-start text-xs leading-relaxed"> <div class="mb-4 text-xs">TABLE OF CONTENTS</div> <nav> <ul class="mt-0 mb-0 list-none ps-0 shadow-[-1px_0_0_0] shadow-slate-700"> <li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#later-that-day" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Later that day… </a>  </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#why-the-problem-at-all" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Why the problem at all? </a>  </li> </ul> </nav> </aside> <script type="module">const r=new Map,d=Array.from(document.querySelectorAll("#toc a"));d.forEach(e=>{const t=e.getAttribute("href").replace("#",""),c=document.querySelector(`[id="${t}"]`);c&&r.set(c,e)});const s=Array.from(r.keys());let n,i;window.addEventListener("scroll",()=>{const{scrollTop:e}=document.documentElement;console.log(e);const o=s.findLast(t=>t.offsetTop<=e+240);if(i!==o&&(i=o,n&&(delete n.dataset.active,n=void 0),o)){const t=r.get(o);n=t,t.dataset.active="true"}});{const e=document.createElement("div");Object.assign(e.style,{position:"fixed",zIndex:9999,top:"240px",left:0,right:0,height:"1px",backgroundColor:"rgba(255 0 0 / 0.5)"}),document.body.append(e)}</script> </div>  </body></html>

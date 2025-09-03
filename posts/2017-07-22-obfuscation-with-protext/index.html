@@ -1,0 +1,75 @@
+<!DOCTYPE html><html lang="en" class="scroll-pt-30 scroll-smooth"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.13.5"><title>Astro Basics</title><link rel="stylesheet" href="/my-blog/_astro/2016-10-08-flowtype-and-modern-js.B3-O7Wa6.css"></head> <body class="dark:bg-slate-900">  <div class="mx-auto grid max-w-5xl gap-x-10 py-30" style="grid-template-columns:minmax(0,1fr) 300px"> <article class="prose dark:prose-invert max-w-none"> <header> <h1>Obfuscation with Protext</h1> <time class="text-sm" datetime="2017-07-22T00:00:00.000Z"> July 22nd, 2017 </time> </header> <p>Obfuscation is the process of making something obscure, unclear, or unintelligible.
+Obfuscation techniques, such as markup mangling, work great for deterring people from understanding the codebase.
+Beyond that, mangling serves no purpose for the end user.</p>
+<p>Recently, I came across a new and very unique obfuscation technique.
+One that focuses on the content <em>rendered</em> on the screen, not the underlying code.</p>
+<!-- preview -->
+<h2 id="hackerrank-hiring-challenge">HackerRank hiring challenge</h2>
+<p>It was the core of a hiring challenge by HackerRank, released on June 18.
+Tweeted by <a href="https://www.linkedin.com/in/shivdeepak">Shiv Deepak</a>, Engineering Manager at HackerRank and later by official HackerRank twitter account.</p>
+<p>They implemented a special encoder mechanism that made this …</p>
+<p>![](/media/2017-07-22-obfuscation-with-protext/protext off.png)</p>
+<p>… <em>render</em> as this in the browser.</p>
+<p>![](/media/2017-07-22-obfuscation-with-protext/protext on.png)</p>
+<p>If we tried to copy/paste the text, we’d end up with the gibberish.</p>
+<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">Can you build a generic solution to break the HTML obfuscation on this page? - <a href="https://t.co/xcw8QlHHZg">https://t.co/xcw8QlHHZg</a> <a href="https://twitter.com/hashtag/HackerRank?src=hash">#HackerRank</a> <a href="https://twitter.com/hashtag/Hiring?src=hash">#Hiring</a> <a href="https://twitter.com/hashtag/Challenge?src=hash">#Challenge</a></p>— Shiv Deepak (@shivdeepak_) <a href="https://twitter.com/shivdeepak_/status/876317554750308352">June 18, 2017</a></blockquote>
+<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">We will be at DeveloperWeek NYC! Can solve this? - <a href="https://t.co/XjVwL23Z96">https://t.co/XjVwL23Z96</a> Get swag and more!<a href="https://twitter.com/hashtag/hackerrank?src=hash">#hackerrank</a> <a href="https://twitter.com/hashtag/code?src=hash">#code</a> <a href="https://twitter.com/hashtag/codefast?src=hash">#codefast</a></p>— HackerRank (@hackerrank) <a href="https://twitter.com/hackerrank/status/876458261536542721">June 18, 2017</a></blockquote>
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+<hr>
+<h2 id="understanding-the-mechanism">Understanding the mechanism</h2>
+<p>The content being served is gibberish, but it <em>renders</em> to be readable in the browser.
+This points to some clever use of CSS.
+<a href="https://developers.google.com/web/tools/chrome-devtools/inspect-styles">Inspecting</a> the text made it clear that a <strong>custom font</strong> was used to make one character <em>render</em> as another.</p>
+<p>Just by this amount of information, we can come up with a possible pipeline for the encoder.</p>
+<ol>
+<li>Map the raw text’s character set to another different character set.</li>
+<li>Generate a font that reverse maps the 2 character sets.</li>
+<li>Apply the custom font for selected regions in the HTML document.</li>
+</ol>
+<p>This is good.
+But how to do the mapping in fonts?</p>
+<hr>
+<h2 id="fonts-and-glyphs">Fonts and Glyphs</h2>
+<p>In the digital age, a glyph is the visual representation of a character and a font is the collection of all such glyphs that match a certain aesthetic.</p>
+<p>To main correct presentation, each glyph as 2 important components:</p>
+<ol>
+<li><code>unicode</code> - The unicode value of the character.</li>
+<li><code>path</code> - The SVG path that gives shape on screen.</li>
+</ol>
+<p>To make one character <em>render</em> as another, all we need to do is play these 2 values.</p>
+<p>In the iframe below, each line has characters a-z.
+By using custom font, it is possible to change how a character <em>renders</em> on the screen.</p>
+<iframe class="demo" frameborder="0" src="/gists/2017-07-22-obfuscation-with-protext/index.html"></iframe>
+<h3 id="almost-there">Almost there</h3>
+<p>As you can see, there are 2 visible issues:</p>
+<ol>
+<li>Some characters have inconsistent width.</li>
+<li>The digits 1, 2, 3 has a different appearance.</li>
+</ol>
+<p>Inconsistent width is because the font is a proportional font, not a monospace font.
+As a result, <code>i</code> takes up much less space than <code>M</code>.</p>
+<p>For correct mapping, we must also copy the <code>advance-width</code> property.</p>
+<p>The second issue happens because the example uses a small character set.
+It only has characters <code>a...z</code>.
+Any other character will be absent in the font file.
+Thus, no style is applied.</p>
+<p>To correct this issue, simply take a larger set.</p>
+<hr>
+<h2 id="protext-as-a-package">ProText as a package</h2>
+<p>HackerRank named this decoder challenge ProText (portmanteau of protect text).
+Under the same name, I released a <a href="https://github.com/zhirzh/protext">node package <code>protext</code></a> and also a companion <a href="https://github.com/zhirzh/protext-webpack-plugin">webpack plugin <code>protext-webpack-plugin</code></a>.</p>
+<p>While making these packages, I was thinking of some scenarios that can benefit from my work.</p>
+<p>The first thing that came to mind were situations where onscreen content verification is needed.</p>
+<p>For example, github’s repository deletion prompt:</p>
+<img src="/media/2017-07-22-obfuscation-with-protext/git confirm.png" class="center">
+<hr>
+<h2 id="the-end">The end</h2>
+<p>Content obfuscation isn’t something we need everything.
+But when we do need it, coming up with a novel implementation can be tough.
+If you ever encounter such a scenario, do try <a href="https://github.com/zhirzh/protext"><code>protext</code></a>.</p>
+<p><em>PS</em>: My solution code is <a href="https://bitbucket.org/zhirzh/protext-decoder">here</a>.
+I also made an app out of solution: <a href="https://protext-decoder.herokuapp.com/">protext-decoder</a>.</p> <footer> <nav class="flex flex-wrap gap-x-10 gap-y-2"> <div>
+&larr;
+<a href="/my-blog/posts/2017-06-25-switching-to-workbox/">Switching to Workbox</a> </div> <div class="ms-auto"> <a href="/my-blog/posts/2017-07-30-correct-blur/">The correct blur</a>
+&rarr;
+</div> </nav> </footer> </article> <aside id="toc" class="prose dark:prose-invert sticky top-32 self-start text-xs leading-relaxed"> <div class="mb-4 text-xs">TABLE OF CONTENTS</div> <nav> <ul class="mt-0 mb-0 list-none ps-0 shadow-[-1px_0_0_0] shadow-slate-700"> <li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#hackerrank-hiring-challenge" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> HackerRank hiring challenge </a>  </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#understanding-the-mechanism" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Understanding the mechanism </a>  </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#fonts-and-glyphs" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Fonts and Glyphs </a> <ul class="mt-0 mb-0 list-none ps-0 shadow-[-1px_0_0_0] shadow-slate-700"> <li data-depth="3" class="mt-1 mb-2 px-4"> <a href="#almost-there" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Almost there </a>  </li> </ul> </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#protext-as-a-package" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> ProText as a package </a>  </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#the-end" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> The end </a>  </li> </ul> </nav> </aside> <script type="module">const r=new Map,d=Array.from(document.querySelectorAll("#toc a"));d.forEach(e=>{const t=e.getAttribute("href").replace("#",""),c=document.querySelector(`[id="${t}"]`);c&&r.set(c,e)});const s=Array.from(r.keys());let n,i;window.addEventListener("scroll",()=>{const{scrollTop:e}=document.documentElement;console.log(e);const o=s.findLast(t=>t.offsetTop<=e+240);if(i!==o&&(i=o,n&&(delete n.dataset.active,n=void 0),o)){const t=r.get(o);n=t,t.dataset.active="true"}});{const e=document.createElement("div");Object.assign(e.style,{position:"fixed",zIndex:9999,top:"240px",left:0,right:0,height:"1px",backgroundColor:"rgba(255 0 0 / 0.5)"}),document.body.append(e)}</script> </div>  </body></html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html><html lang="en" class="scroll-pt-30 scroll-smooth"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.13.5"><title>Astro Basics</title><link rel="stylesheet" href="/my-blog/_astro/2016-10-08-flowtype-and-modern-js.B3-O7Wa6.css"></head> <body class="dark:bg-slate-900">  <div class="mx-auto grid max-w-5xl gap-x-10 py-30" style="grid-template-columns:minmax(0,1fr) 300px"> <article class="prose dark:prose-invert max-w-none"> <header> <h1>Stream capturing with MediaRecorder</h1> <time class="text-sm" datetime="2017-09-02T00:00:00.000Z"> September 2nd, 2017 </time> </header> <p>The new <a href="https://developer.mozilla.org/docs/Web/API/MediaRecorder"><code>MediaRecorder</code></a> WebAPI makes media recording super easy.
+It allows storing chunks of data from a <a href="https://developer.mozilla.org/docs/Web/API/MediaStream">media stream</a> as blobs, which can later be concatenated and saved as a single file.
+As time passes, more sources of media streams are added.
+We can capture media from:</p>
+<ul>
+<li>Media Devices</li>
+<li>Canvas</li>
+<li>Media Elements:
+<ul>
+<li><code>&#x3C;video /></code></li>
+<li><code>&#x3C;audio /></code></li>
+</ul>
+</li>
+</ul>
+<!-- preview -->
+<hr>
+<h2 id="mediastream">MediaStream</h2>
+<h3 id="media-devices">Media Devices</h3>
+<p>The key component in using <code>MediaRecorder</code> is having access to a MediaStream.
+The early uses of MediaStreams came with the use of <code>getUserMedia()</code> method to gain access to local media devices.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#E1E4E8">navigator.mediaDevices.</span><span style="color:#B392F0">getUserMedia</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">then</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">stream</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'Captured MediaStream:'</span><span style="color:#E1E4E8">, stream);</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<h3 id="canvas">Canvas</h3>
+<p>The <a href="https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement"><code>&#x3C;canvas /></code></a> element implements a method
+<a href="https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement/captureStream"><code>captureStream()</code></a>
+that captures content rendered on the canvas element, each time the content changes.</p>
+<p>We can supply an optional argument that controls the number of frames recorded per second (FPS).</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// frames recorded only on re-renders</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> stream</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> canvas.</span><span style="color:#B392F0">captureStream</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// 30 frames recorded per second</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> stream</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> canvas.</span><span style="color:#B392F0">captureStream</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">30</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<p><strong>Note:</strong> To stream returned by <code>canvas.captureStream()</code> is of type <a href="https://developer.mozilla.org/docs/Web/API/CanvasCaptureMediaStream"><code>CanvasCaptureMediaStream</code></a> and not <code>MediaStream</code>.
+This difference will be important later.</p>
+<h3 id="media-elements">Media Elements</h3>
+<p>In modern browsers, the <code>HTMLMediaElement</code> interface also adds the method
+<a href="https://developer.mozilla.org/docs/Web/API/HTMLMediaElement/captureStream"><code>captureStream()</code></a>
+that <em>pipes</em> the media content into a continuous stream.
+Since <code>HTMLMediaElement</code> is implemented by both <code>&#x3C;video /></code> and <code>&#x3C;audio /></code> elements, we can capture media streams from both these elements.</p>
+<p>But there’s a difference.
+Here, the frames are captured in <em>real time</em>.
+If the video being recorded is paused, the frozen frame will be captured repeatedly.</p>
+<p><strong>Note:</strong> To use this method in Google Chrome, you need to enable the “Experimental Web Platform features” flag.
+You can copy/paste the below for quick access.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>chrome://flags/#enable-experimental-web-platform-features</span></span></code></pre>
+<hr>
+<h2 id="using-mediarecorder">Using MediaRecorder</h2>
+<p>Using the <code>MediaRecorder</code> API is super simple.
+Here’s a short snippet that highlights all the key parts.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// Get a MediaStream object to record</span></span>
+<span class="line"><span style="color:#6A737D">// and pass it to MediaRecorder constructor</span></span>
+<span class="line"><span style="color:#6A737D">// to create a MediaRecorder instance `recorder`</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> stream</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> mediaElement.</span><span style="color:#B392F0">captureStream</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> recorder</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> MediaRecorder</span><span style="color:#E1E4E8">(stream);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// When recording starts, the captured frames are emitted</span></span>
+<span class="line"><span style="color:#6A737D">// as `dataavailable` events on the `recorder`.</span></span>
+<span class="line"><span style="color:#6A737D">// These captured "chunks" can be collected in an array.</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> allChunks</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> [];</span></span>
+<span class="line"><span style="color:#E1E4E8">recorder.</span><span style="color:#B392F0">ondataavailable</span><span style="color:#F97583"> =</span><span style="color:#FFAB70"> e</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  allChunks.</span><span style="color:#B392F0">push</span><span style="color:#E1E4E8">(e.data);</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Start recording</span></span>
+<span class="line"><span style="color:#E1E4E8">recorder.</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// We can pause capturing media and resume again later</span></span>
+<span class="line"><span style="color:#6A737D">// to deal with irregular media playback</span></span>
+<span class="line"><span style="color:#6A737D">// (likely due to user interactions or buffering)</span></span>
+<span class="line"><span style="color:#E1E4E8">recorder.</span><span style="color:#B392F0">pause</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">recorder.</span><span style="color:#B392F0">resume</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// When we're done, we can stop recording.</span></span>
+<span class="line"><span style="color:#6A737D">// This ensures that no more media chunks are captured,</span></span>
+<span class="line"><span style="color:#6A737D">// even if media playback continues.</span></span>
+<span class="line"><span style="color:#E1E4E8">recorder.</span><span style="color:#B392F0">stop</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// We can now join all the chunks</span></span>
+<span class="line"><span style="color:#6A737D">// into a single "blob" ...</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> fullBlob</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Blob</span><span style="color:#E1E4E8">(allChunks);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// ... which we can download using HTML5 `download` attribute on &#x3C;a /></span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> link</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> document.</span><span style="color:#B392F0">createElement</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'a'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">link.style.display </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> 'none'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> downloadUrl</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> window.</span><span style="color:#79B8FF">URL</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">createObjectURL</span><span style="color:#E1E4E8">(fullBlob);</span></span>
+<span class="line"><span style="color:#E1E4E8">link.href </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> downloadUrl;</span></span>
+<span class="line"><span style="color:#E1E4E8">link.download </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> 'media.webm'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">document.body.</span><span style="color:#B392F0">appendChild</span><span style="color:#E1E4E8">(link);</span></span>
+<span class="line"><span style="color:#E1E4E8">link.</span><span style="color:#B392F0">click</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">link.</span><span style="color:#B392F0">remove</span><span style="color:#E1E4E8">();</span></span></code></pre>
+<hr>
+<h2 id="customising">Customising</h2>
+<h3 id="1-media-parameters">1. Media parameters</h3>
+<p>The constructor takes an optional argument that can have the following options:</p>
+<ul>
+<li><code>mimeType</code>: The mime type to use for the recording.</li>
+<li><code>audioBitsPerSecond</code>: The bitrate for the audio component of the media.</li>
+<li><code>videoBitsPerSecond</code>: The bitrate for the video component of the media.</li>
+<li><code>bitsPerSecond</code>: The bitrate for both, the audio and the video components of the media.</li>
+</ul>
+<p>If <code>bitsPerSecond</code> is provided with one of <code>audioBitsPerSecond</code> or <code>videoBitsPerSecond</code>, it will be applied to the missing one.</p>
+<p>Out of them all, <code>mimeType</code> is the most important one.
+It controls the codecs used for encoding audio and video components.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> codec</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> 'video/webm'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> recorder</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> MediaRecorder</span><span style="color:#E1E4E8">(stream, {</span></span>
+<span class="line"><span style="color:#E1E4E8">  mimeType: codec,</span></span>
+<span class="line"><span style="color:#E1E4E8">  audioBitsPerSecond: </span><span style="color:#79B8FF">1000000</span><span style="color:#6A737D"> // 1 Mbps</span></span>
+<span class="line"><span style="color:#E1E4E8">  bitsPerSecond: </span><span style="color:#79B8FF">1000000</span><span style="color:#6A737D">      // 2 Mbps</span></span>
+<span class="line"><span style="color:#6A737D">  // videoBitsPerSecond will also be 2 Mbps</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<p>To check if a codec is supported, use <a href="https://developer.mozilla.org/docs/Web/API/MediaRecorder/isTypeSupported"><code>MediaRecorder.isTypeSupported()</code></a>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#E1E4E8">MediaRecorder.</span><span style="color:#B392F0">isTypeSupported</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'video/webm'</span><span style="color:#E1E4E8">); </span><span style="color:#6A737D">// true</span></span>
+<span class="line"><span style="color:#E1E4E8">MediaRecorder.</span><span style="color:#B392F0">isTypeSupported</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'video/mp4'</span><span style="color:#E1E4E8">); </span><span style="color:#6A737D">// false</span></span></code></pre>
+<p>At the time of writing, the supported codecs are:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#6A737D"># audio codecs</span></span>
+<span class="line"><span style="color:#B392F0">audio/webm</span></span>
+<span class="line"><span style="color:#B392F0">audio/webm</span><span style="color:#E1E4E8">;codecs</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">opus</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># video codecs</span></span>
+<span class="line"><span style="color:#B392F0">video/webm</span></span>
+<span class="line"><span style="color:#B392F0">video/webm</span><span style="color:#E1E4E8">;codecs</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">avc1</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">video/webm</span><span style="color:#E1E4E8">;codecs</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">h264</span></span>
+<span class="line"><span style="color:#B392F0">video/webm</span><span style="color:#E1E4E8">;codecs</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">h264,opus</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">video/webm</span><span style="color:#E1E4E8">;codecs</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">vp8</span></span>
+<span class="line"><span style="color:#B392F0">video/webm</span><span style="color:#E1E4E8">;codecs</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">vp8,opus</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">video/webm</span><span style="color:#E1E4E8">;codecs</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">vp9</span></span>
+<span class="line"><span style="color:#B392F0">video/webm</span><span style="color:#E1E4E8">;codecs</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">vp9,opus</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">video/webm</span><span style="color:#E1E4E8">;codecs</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">h264,vp9,opus</span></span>
+<span class="line"><span style="color:#B392F0">video/webm</span><span style="color:#E1E4E8">;codecs</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">vp8,vp9,opus</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">video/x-matroska</span></span>
+<span class="line"><span style="color:#B392F0">video/x-matroska</span><span style="color:#E1E4E8">;codecs</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">avc1</span></span></code></pre>
+<h3 id="2-capturing-time-slices">2. Capturing time slices</h3>
+<p>We can pass an optional argument to <code>MediaRecorder.start()</code>.
+This is the <code>timeslice</code>.
+It is the duration (in milliseconds) of the segment of captured media, emitted in each event.</p>
+<p>If not specified, all media captured will be returned in a single Blob.</p>
+<hr>
+<h2 id="polyfills">Polyfills</h2>
+<p>At the time of writing, the whole <code>MediaRecorder</code> API is <em>bleeding edge</em> and support for <a href="https://developer.mozilla.org/docs/Web/API/HTMLMediaElement/captureStream"><code>HTMLMediaElement.captureStream()</code></a> is rare.
+But there’s a way to make it work.</p>
+<p>For capturing audio stream, we can use the <a href="https://developer.mozilla.org/docs/Web/API/Web_Audio_API">Web Audio API</a>.
+There are 3 steps:</p>
+<ol>
+<li>Create a source node from the media element.</li>
+<li>Create a stream destination node.</li>
+<li>Connect the source node to the stream destination node.</li>
+</ol>
+<p>For capturing video stream, we can render a <code>&#x3C;video /></code> element onto a <code>&#x3C;canvas /></code> element and capture frames from it.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// audio polyfill</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> polyfillAudio</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">mediaElement</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> audioCtx</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> AudioContext</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">  // create a source node and a stream destination node</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> source</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> audioCtx.</span><span style="color:#B392F0">createMediaElementSource</span><span style="color:#E1E4E8">(mediaElement);</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> destination</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> audioCtx.</span><span style="color:#B392F0">createMediaStreamDestination</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">  // Connect the source node to the stream destination node</span></span>
+<span class="line"><span style="color:#6A737D">  // to push audio content into the stream</span></span>
+<span class="line"><span style="color:#E1E4E8">  source.</span><span style="color:#B392F0">connect</span><span style="color:#E1E4E8">(destination);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">  // Connect the source node to the audio context's destination node</span></span>
+<span class="line"><span style="color:#6A737D">  // so the playback can still deliver audio</span></span>
+<span class="line"><span style="color:#E1E4E8">  source.</span><span style="color:#B392F0">connect</span><span style="color:#E1E4E8">(audioCtx.destination);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> audioStream</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> destination.stream;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> audioStream;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// video polyfill</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> polyfillVideo</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">mediaElement</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">  // Create a canvas element</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> canvas</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> document.</span><span style="color:#B392F0">createElement</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'canvas'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">  // Start rendering video frames onto the canvas</span></span>
+<span class="line"><span style="color:#B392F0">  renderVideoFrame</span><span style="color:#E1E4E8">(canvas, videoElement);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> videoStream</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> canvas.</span><span style="color:#B392F0">captureStream</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">60</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> videoStream;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> renderVideoFrame</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">canvas</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">videoElement</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> ctx</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> canvas.</span><span style="color:#B392F0">getContext</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'2d'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  ctx.</span><span style="color:#B392F0">drawImage</span><span style="color:#E1E4E8">(videoElement, </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, canvas.width, canvas.height);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">  setTimeout</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=></span><span style="color:#B392F0"> renderVideoFrame</span><span style="color:#E1E4E8">(canvas, videoElement));</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Now we need to do combine the 2 streams and <em>voila!</em></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> stream</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> MediaStream</span><span style="color:#E1E4E8">([</span></span>
+<span class="line"><span style="color:#F97583">  ...</span><span style="color:#E1E4E8">audioStream.</span><span style="color:#B392F0">getTracks</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#F97583">  ...</span><span style="color:#E1E4E8">videoStream.</span><span style="color:#B392F0">getTracks</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">]);</span></span></code></pre>
+<hr>
+<h2 id="rocky-performance">Rocky performance</h2>
+<p>There are a few bumps in using <code>MediaRecorder</code>.</p>
+<h3 id="1-partial-metadata">1. Partial Metadata</h3>
+<p>One serious problem is that the saved recordings have no duration attribute.
+To record media, <code>MediaRecorder</code> uses the <a href="https://en.wikipedia.org/wiki/Matroska">Matroska</a> container format.
+The <a href="https://www.matroska.org/technical/specs/index.html">Matroska format</a> doesn’t treat duration as a mandatory element.</p>
+<p>As a result, it is not embedded in the file’s header.</p>
+<p>Also, adding it isn’t an easy procedure, nor is it simple - it’s doable, but “takes more than a weekend” kind of doable.</p>
+<h3 id="2-adaptive-streaming">2. Adaptive Streaming</h3>
+<p>When capturing videos served using <a href="https://developer.mozilla.org/docs/Web/HTML/DASH_Adaptive_Streaming_for_HTML_5_Video">DASH Adaptive Streaming</a>, changing the resolution causes frame corruption.
+I haven’t yet figured out a way to sole this problem, but using the <code>&#x3C;canvas /></code> polyfill seems to work just fine.</p>
+<p>Here’s a demo video highlighting the 2 problems.</p>
+<p><video class="center-block" src="/media/2017-09-02-mediarecorder/media.webm" controls></video></p>
+<hr>
+<h2 id="the-end">The end</h2>
+<p>In the future, as browser support for grows, people and organisations alike will start rolling out extensions, plugins and softwares allowing client-side media capturing.
+It can be used in an <a href="https://electron.atom.io/apps">electron apps</a> like camera, video calling, media player.
+But for today, it is more or less an niche experimental toy.</p>
+<p>At this point, it’d be good to have some <a href="/gists/2017-09-04-mediarecorder">demos</a> and the source <a href="https://github.com/zhirzh/zhirzh.github.io/blob/master/gists/2017-09-04-mediarecorder">code</a>.</p> <footer> <nav class="flex flex-wrap gap-x-10 gap-y-2"> <div>
+&larr;
+<a href="/my-blog/posts/2017-08-27-tiny-transfers/">Tiny transfers</a> </div> <div class="ms-auto"> <a href="/my-blog/posts/2017-11-30-cra-with-ssr/">Making CRA apps work with SSR</a>
+&rarr;
+</div> </nav> </footer> </article> <aside id="toc" class="prose dark:prose-invert sticky top-32 self-start text-xs leading-relaxed"> <div class="mb-4 text-xs">TABLE OF CONTENTS</div> <nav> <ul class="mt-0 mb-0 list-none ps-0 shadow-[-1px_0_0_0] shadow-slate-700"> <li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#mediastream" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> MediaStream </a> <ul class="mt-0 mb-0 list-none ps-0 shadow-[-1px_0_0_0] shadow-slate-700"> <li data-depth="3" class="mt-1 mb-2 px-4"> <a href="#media-devices" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Media Devices </a>  </li><li data-depth="3" class="mt-1 mb-2 px-4"> <a href="#canvas" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Canvas </a>  </li><li data-depth="3" class="mt-1 mb-2 px-4"> <a href="#media-elements" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Media Elements </a>  </li> </ul> </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#using-mediarecorder" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Using MediaRecorder </a>  </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#customising" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Customising </a> <ul class="mt-0 mb-0 list-none ps-0 shadow-[-1px_0_0_0] shadow-slate-700"> <li data-depth="3" class="mt-1 mb-2 px-4"> <a href="#1-media-parameters" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> 1. Media parameters </a>  </li><li data-depth="3" class="mt-1 mb-2 px-4"> <a href="#2-capturing-time-slices" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> 2. Capturing time slices </a>  </li> </ul> </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#polyfills" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Polyfills </a>  </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#rocky-performance" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Rocky performance </a> <ul class="mt-0 mb-0 list-none ps-0 shadow-[-1px_0_0_0] shadow-slate-700"> <li data-depth="3" class="mt-1 mb-2 px-4"> <a href="#1-partial-metadata" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> 1. Partial Metadata </a>  </li><li data-depth="3" class="mt-1 mb-2 px-4"> <a href="#2-adaptive-streaming" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> 2. Adaptive Streaming </a>  </li> </ul> </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#the-end" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> The end </a>  </li> </ul> </nav> </aside> <script type="module">const r=new Map,d=Array.from(document.querySelectorAll("#toc a"));d.forEach(e=>{const t=e.getAttribute("href").replace("#",""),c=document.querySelector(`[id="${t}"]`);c&&r.set(c,e)});const s=Array.from(r.keys());let n,i;window.addEventListener("scroll",()=>{const{scrollTop:e}=document.documentElement;console.log(e);const o=s.findLast(t=>t.offsetTop<=e+240);if(i!==o&&(i=o,n&&(delete n.dataset.active,n=void 0),o)){const t=r.get(o);n=t,t.dataset.active="true"}});{const e=document.createElement("div");Object.assign(e.style,{position:"fixed",zIndex:9999,top:"240px",left:0,right:0,height:"1px",backgroundColor:"rgba(255 0 0 / 0.5)"}),document.body.append(e)}</script> </div>  </body></html>

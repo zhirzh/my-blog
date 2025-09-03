@@ -1,0 +1,420 @@
+<!DOCTYPE html><html lang="en" class="scroll-pt-30 scroll-smooth"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.13.5"><title>Astro Basics</title><link rel="stylesheet" href="/my-blog/_astro/2016-10-08-flowtype-and-modern-js.B3-O7Wa6.css"></head> <body class="dark:bg-slate-900">  <div class="mx-auto grid max-w-5xl gap-x-10 py-30" style="grid-template-columns:minmax(0,1fr) 300px"> <article class="prose dark:prose-invert max-w-none"> <header> <h1>Tiny transfers</h1> <time class="text-sm" datetime="2017-08-27T00:00:00.000Z"> August 27th, 2017 </time> </header> <p>It’s hard to pin down why JSON transfers is so popular.
+But one thing’s for sure, it is <strong>not</strong> the most efficient when it comes to data transfers.</p>
+<p>The nested nature of JSON makes it prone to redundant storage and transferring redundant JSON files only puts strain on the server’s and the client’s bandwidth.</p>
+<p>It is always a good idea to <em>deflate</em> your JSON data before transferring to the other side.</p>
+<!-- preview -->
+<hr>
+<h2 id="working-dataset">Working dataset</h2>
+<p>The first thing we need is a rich dataset.
+Google’s doodle database is the perfect fit.
+Use the 2 scripts to download all doodles from the year 2016 …</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#6A737D"># fetch.sh</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">DATA_PATH</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">"raw"</span></span>
+<span class="line"><span style="color:#B392F0">mkdir</span><span style="color:#79B8FF"> -p</span><span style="color:#E1E4E8"> $DATA_PATH</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">for</span><span style="color:#E1E4E8"> (( MONTH </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">; MONTH </span><span style="color:#F97583">&#x3C;=</span><span style="color:#79B8FF"> 12</span><span style="color:#E1E4E8">; MONTH</span><span style="color:#F97583">++</span><span style="color:#E1E4E8"> )) </span><span style="color:#F97583">do</span></span>
+<span class="line"><span style="color:#E1E4E8">  ZERO_MONTH</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">$(</span><span style="color:#79B8FF">printf</span><span style="color:#9ECBFF"> %02d</span><span style="color:#E1E4E8"> $MONTH)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  URL</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">"https://www.google.com/doodles/json/2016/</span><span style="color:#E1E4E8">$ZERO_MONTH</span><span style="color:#9ECBFF">?full=1"</span></span>
+<span class="line"><span style="color:#E1E4E8">  FILEPATH</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">$DATA_PATH</span><span style="color:#9ECBFF">/2016-</span><span style="color:#E1E4E8">$ZERO_MONTH</span><span style="color:#9ECBFF">.json"</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> [[ </span><span style="color:#F97583">-f</span><span style="color:#9ECBFF"> "</span><span style="color:#E1E4E8">$FILEPATH</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8"> ]]</span></span>
+<span class="line"><span style="color:#F97583">  then</span></span>
+<span class="line"><span style="color:#E1E4E8">    FILESIZE</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">$(</span><span style="color:#B392F0">wc</span><span style="color:#79B8FF"> -c</span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF"> "</span><span style="color:#E1E4E8">$FILEPATH</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    NULL_FILESIZE</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">2</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> [[ $FILESIZE </span><span style="color:#F97583">-eq</span><span style="color:#E1E4E8"> $NULL_FILESIZE ]]</span></span>
+<span class="line"><span style="color:#F97583">    then</span></span>
+<span class="line"><span style="color:#B392F0">      wget</span><span style="color:#79B8FF"> -c</span><span style="color:#E1E4E8"> $URL </span><span style="color:#79B8FF">-O</span><span style="color:#9ECBFF"> "</span><span style="color:#E1E4E8">$FILEPATH</span><span style="color:#9ECBFF">"</span></span>
+<span class="line"><span style="color:#F97583">    else</span></span>
+<span class="line"><span style="color:#79B8FF">      echo</span><span style="color:#9ECBFF"> "SKIP: </span><span style="color:#E1E4E8">$FILEPATH</span><span style="color:#9ECBFF">"</span></span>
+<span class="line"><span style="color:#F97583">    fi</span></span>
+<span class="line"><span style="color:#F97583">  else</span></span>
+<span class="line"><span style="color:#B392F0">    wget</span><span style="color:#79B8FF"> -c</span><span style="color:#E1E4E8"> $URL </span><span style="color:#79B8FF">-O</span><span style="color:#9ECBFF"> "</span><span style="color:#E1E4E8">$FILEPATH</span><span style="color:#9ECBFF">"</span></span>
+<span class="line"><span style="color:#F97583">  fi</span></span>
+<span class="line"><span style="color:#F97583">done</span></span></code></pre>
+<p>… and consolidate them in a single file.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// aggregate.js</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> fs</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> require</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'fs'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> path</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> require</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'path'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> rawDirPath</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> path.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(__dirname, </span><span style="color:#9ECBFF">'raw'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> allDoodlesPath</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> path.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(__dirname, </span><span style="color:#9ECBFF">'doodles.all.json'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> allDoodles</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> fs</span></span>
+<span class="line"><span style="color:#E1E4E8">  .</span><span style="color:#B392F0">readdirSync</span><span style="color:#E1E4E8">(rawDirPath)</span></span>
+<span class="line"><span style="color:#E1E4E8">  .</span><span style="color:#B392F0">reduce</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">_allDoodles</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">fileName</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> filePath</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> path.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(rawDirPath, fileName);</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> fileDoodles</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> JSON</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">(fs.</span><span style="color:#B392F0">readFileSync</span><span style="color:#E1E4E8">(filePath));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> _allDoodles.</span><span style="color:#B392F0">concat</span><span style="color:#E1E4E8">(fileDoodles);</span></span>
+<span class="line"><span style="color:#E1E4E8">  }, []);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">fs.</span><span style="color:#B392F0">writeFileSync</span><span style="color:#E1E4E8">(allDoodlesPath, </span><span style="color:#79B8FF">JSON</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">stringify</span><span style="color:#E1E4E8">(allDoodles));</span></span></code></pre>
+<p>If everything goes well, you’ll end up with the following files.
+The exact sizes might differ (more on this later).</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> du</span><span style="color:#79B8FF"> -sh</span><span style="color:#9ECBFF"> raw/</span><span style="color:#79B8FF">*</span></span>
+<span class="line"><span style="color:#B392F0">724K</span><span style="color:#9ECBFF">  raw/2016-01.json</span></span>
+<span class="line"><span style="color:#B392F0">592K</span><span style="color:#9ECBFF">  raw/2016-02.json</span></span>
+<span class="line"><span style="color:#B392F0">1.2M</span><span style="color:#9ECBFF">  raw/2016-03.json</span></span>
+<span class="line"><span style="color:#B392F0">644K</span><span style="color:#9ECBFF">  raw/2016-04.json</span></span>
+<span class="line"><span style="color:#B392F0">660K</span><span style="color:#9ECBFF">  raw/2016-05.json</span></span>
+<span class="line"><span style="color:#B392F0">872K</span><span style="color:#9ECBFF">  raw/2016-06.json</span></span>
+<span class="line"><span style="color:#B392F0">488K</span><span style="color:#9ECBFF">  raw/2016-07.json</span></span>
+<span class="line"><span style="color:#B392F0">1.9M</span><span style="color:#9ECBFF">  raw/2016-08.json</span></span>
+<span class="line"><span style="color:#B392F0">1.1M</span><span style="color:#9ECBFF">  raw/2016-09.json</span></span>
+<span class="line"><span style="color:#B392F0">512K</span><span style="color:#9ECBFF">  raw/2016-10.json</span></span>
+<span class="line"><span style="color:#B392F0">644K</span><span style="color:#9ECBFF">  raw/2016-11.json</span></span>
+<span class="line"><span style="color:#B392F0">836K</span><span style="color:#9ECBFF">  raw/2016-12.json</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> du</span><span style="color:#79B8FF"> -sh</span><span style="color:#9ECBFF"> doodles.all.json</span></span>
+<span class="line"><span style="color:#B392F0">8.1M</span><span style="color:#9ECBFF">  doodles.all.json</span></span></code></pre>
+<hr>
+<h2 id="understanding-the-data">Understanding the data</h2>
+<p>Before we can begin the cleaning process, we need to understand the structure of our data.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// structure.js</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> fs</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> require</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'fs'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> path</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> require</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'path'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> allDoodlesPath</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> path.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(__dirname, </span><span style="color:#9ECBFF">'doodles.all.json'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> allDoodles</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> require</span><span style="color:#E1E4E8">(allDoodlesPath);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> keys</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {};</span></span>
+<span class="line"><span style="color:#E1E4E8">allDoodles.</span><span style="color:#B392F0">forEach</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">doodle</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  Object.</span><span style="color:#B392F0">keys</span><span style="color:#E1E4E8">(doodle).</span><span style="color:#B392F0">forEach</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">k</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    keys[k] </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> doodle[k].</span><span style="color:#79B8FF">constructor</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">  });</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(keys);</span></span></code></pre>
+<p>This gives us the following list.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>alternate_url            : String,</span></span>
+<span class="line"><span>blog_text                : String,</span></span>
+<span class="line"><span>call_to_action_image_url : String,</span></span>
+<span class="line"><span>collection_id            : Number,</span></span>
+<span class="line"><span>countries                : Array,</span></span>
+<span class="line"><span>doodle_args              : Array,</span></span>
+<span class="line"><span>doodle_type              : String,</span></span>
+<span class="line"><span>height                   : Number,</span></span>
+<span class="line"><span>hires_height             : Number,</span></span>
+<span class="line"><span>hires_url                : String,</span></span>
+<span class="line"><span>hires_width              : Number,</span></span>
+<span class="line"><span>history_doodles          : Array,</span></span>
+<span class="line"><span>id                       : Number,</span></span>
+<span class="line"><span>is_animated_gif          : Boolean,</span></span>
+<span class="line"><span>is_dynamic               : Boolean,</span></span>
+<span class="line"><span>is_global                : Boolean,</span></span>
+<span class="line"><span>is_highlighted           : Boolean,</span></span>
+<span class="line"><span>name                     : String,</span></span>
+<span class="line"><span>next_doodle              : Object,</span></span>
+<span class="line"><span>persistent_id            : Number,</span></span>
+<span class="line"><span>prev_doodle              : Object,</span></span>
+<span class="line"><span>query                    : String,</span></span>
+<span class="line"><span>related_doodles          : Array,</span></span>
+<span class="line"><span>run_date_array           : Array,</span></span>
+<span class="line"><span>share_text               : String,</span></span>
+<span class="line"><span>standalone_html          : String,</span></span>
+<span class="line"><span>tags                     : Array,</span></span>
+<span class="line"><span>title                    : String,</span></span>
+<span class="line"><span>translations             : Object,</span></span>
+<span class="line"><span>url                      : String,</span></span>
+<span class="line"><span>width                    : Number,</span></span>
+<span class="line"><span>youtube_id               : String,</span></span></code></pre>
+<p>We can work on this initial list of keys to workout more semantic types - URLs, IDs, self references, etc.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>history_doodles : Array&#x3C;Doodle>,</span></span>
+<span class="line"><span>next_doodle     : Doodle,</span></span>
+<span class="line"><span>prev_doodle     : Doodle,</span></span>
+<span class="line"><span>related_doodles : Array&#x3C;Doodle>,</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>alternate_url            : URL,</span></span>
+<span class="line"><span>call_to_action_image_url : URL,</span></span>
+<span class="line"><span>hires_url                : URL,</span></span>
+<span class="line"><span>standalone_html          : URL,</span></span>
+<span class="line"><span>url                      : URL,</span></span></code></pre>
+<p>Next, we will extract data instances where duplicates are a possibility.
+This happens with collection attributes (like arrays) over a closed set (like countries of the world).</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>countries : Array&#x3C;Country>,</span></span>
+<span class="line"><span>tags      : Array&#x3C;Tag>,</span></span></code></pre>
+<hr>
+<h2 id="normalisation">Normalisation</h2>
+<p>Now we can perform the actual normalisation.
+There are 3 steps:</p>
+<ol>
+<li>Extract unique instances for all Models:</li>
+</ol>
+<ul>
+<li>Doodle</li>
+<li>Country</li>
+<li>Tag</li>
+</ul>
+<ol start="2">
+<li>Replace redundant instances with unique IDs</li>
+<li>Save all model instances as separate JSON files</li>
+</ol>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// normalise.js</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// step 1</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> uniqueDoodles</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {};</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> uniqueCountriesSet</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Set</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> uniqueTagsSet</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Set</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">allDoodles.</span><span style="color:#B392F0">forEach</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">doodle</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  doodle._id </span><span style="color:#F97583">=</span><span style="color:#B392F0"> generateDoodleHash</span><span style="color:#E1E4E8">(doodle);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  uniqueDoodles[doodle._id] </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> doodle;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  doodle.countries.</span><span style="color:#B392F0">forEach</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">country</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    country </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> country.</span><span style="color:#B392F0">trim</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">toLowerCase</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    uniqueCountriesSet.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(country);</span></span>
+<span class="line"><span style="color:#E1E4E8">  });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  doodle.tags.</span><span style="color:#B392F0">forEach</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">tag</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    tag </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> tag.</span><span style="color:#B392F0">trim</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">toLowerCase</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    uniqueTagsSet.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(tag);</span></span>
+<span class="line"><span style="color:#E1E4E8">  });</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// step 2</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> uniqueCountries</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> Array.</span><span style="color:#B392F0">from</span><span style="color:#E1E4E8">(uniqueCountriesSet);</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> uniqueTags</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> Array.</span><span style="color:#B392F0">from</span><span style="color:#E1E4E8">(uniqueTagsSet);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">allDoodles.</span><span style="color:#B392F0">forEach</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">doodle</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (doodle.next_doodle </span><span style="color:#F97583">!==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> nextDoodle</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> doodle.next_doodle;</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> nextDoodleHash</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> generateDoodleHash</span><span style="color:#E1E4E8">(nextDoodle);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    doodle.next_doodle </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> nextDoodleHash;</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (doodle.prev_doodle </span><span style="color:#F97583">!==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> prevDoodle</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> doodle.prev_doodle;</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> prevDoodleHash</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> generateDoodleHash</span><span style="color:#E1E4E8">(prevDoodle);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    doodle.prev_doodle </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> prevDoodleHash;</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  doodle.related_doodles </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> doodle.related_doodles.</span><span style="color:#B392F0">map</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">relatedDoodle</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> relatedDoodleHash</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> generateDoodleHash</span><span style="color:#E1E4E8">(relatedDoodle);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> relatedDoodleHash;</span></span>
+<span class="line"><span style="color:#E1E4E8">  });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  doodle.history_doodles </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> doodle.history_doodles.</span><span style="color:#B392F0">map</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">historyDoodle</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> historyDoodleHash</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> generateDoodleHash</span><span style="color:#E1E4E8">(historyDoodle);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> historyDoodleHash;</span></span>
+<span class="line"><span style="color:#E1E4E8">  });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  doodle.countries </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> doodle.countries.</span><span style="color:#B392F0">map</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">country</span><span style="color:#F97583"> =></span></span>
+<span class="line"><span style="color:#E1E4E8">    uniqueCountries.</span><span style="color:#B392F0">indexOf</span><span style="color:#E1E4E8">(country.</span><span style="color:#B392F0">trim</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">toLowerCase</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">  );</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  doodle.tags </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> doodle.tags.</span><span style="color:#B392F0">map</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">tag</span><span style="color:#F97583"> =></span></span>
+<span class="line"><span style="color:#E1E4E8">    uniqueTags.</span><span style="color:#B392F0">indexOf</span><span style="color:#E1E4E8">(tag.</span><span style="color:#B392F0">trim</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">toLowerCase</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">  );</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// step 3</span></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> writeJSON</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">filepath</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">json</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">pretty</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">  fs.</span><span style="color:#B392F0">writeFileSync</span><span style="color:#E1E4E8">(filepath, </span><span style="color:#79B8FF">JSON</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">stringify</span><span style="color:#E1E4E8">(json, </span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">, pretty </span><span style="color:#F97583">?</span><span style="color:#79B8FF"> 2</span><span style="color:#F97583"> :</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">writeJSON</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'doodles.all.norm.json'</span><span style="color:#E1E4E8">, allDoodles);</span></span>
+<span class="line"><span style="color:#B392F0">writeJSON</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'countries.json'</span><span style="color:#E1E4E8">, uniqueCountries);</span></span>
+<span class="line"><span style="color:#B392F0">writeJSON</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'tags.json'</span><span style="color:#E1E4E8">, uniqueTags);</span></span></code></pre>
+<p>We can also apply the same process to other properties, such as the different types of URLs.
+Find all the possible <a href="https://developer.mozilla.org/docs/Web/HTTP/Headers/Origin">origins</a> and common pathnames, and store them as a separate JSON file.
+This means we can further reduce file sizes by replace long repeating URLs.</p>
+<p>All doodles can have any of the following URL types:</p>
+<ul>
+<li><code>alternate_url</code></li>
+<li><code>call_to_action_image_url</code></li>
+<li><code>hires_url</code></li>
+<li><code>standalone_html</code></li>
+<li><code>url</code></li>
+</ul>
+<p>And all of those URLs have the following common starting paths:</p>
+<ul>
+<li><code>https://lh3.googleusercontent.com</code></li>
+<li><code>https://www.google.com/logos/doodles</code></li>
+<li><code>https://www.google.com/logos</code></li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// normalise.js</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// ...</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> linkTypes</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> [</span></span>
+<span class="line"><span style="color:#9ECBFF">  'alternate_url'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">  'call_to_action_image_url'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">  'hires_url'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">  'standalone_html'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">  'url'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">];</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> urlPrefixes</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> [</span></span>
+<span class="line"><span style="color:#9ECBFF">  'lh3.googleusercontent.com'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">  'www.google.com/logos'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">  'www.google.com/logos/doodles'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">];</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">allDoodles.</span><span style="color:#B392F0">forEach</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">doodle</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  linkTypes.</span><span style="color:#B392F0">forEach</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">linkType</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> link</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> doodle[linkType];</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    switch</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">      case</span><span style="color:#E1E4E8"> link.</span><span style="color:#B392F0">startsWith</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'https://lh3.googleusercontent.com'</span><span style="color:#E1E4E8">):</span></span>
+<span class="line"><span style="color:#E1E4E8">        doodle[linkType] </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> link.</span><span style="color:#B392F0">replace</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'https://lh3.googleusercontent.com'</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">        break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">      case</span><span style="color:#E1E4E8"> link.</span><span style="color:#B392F0">startsWith</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'//www.google.com/logos'</span><span style="color:#E1E4E8">):</span></span>
+<span class="line"><span style="color:#E1E4E8">        doodle[linkType] </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> link.</span><span style="color:#B392F0">replace</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'//www.google.com/logos'</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">        break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">      case</span><span style="color:#E1E4E8"> link.</span><span style="color:#B392F0">startsWith</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'/logos'</span><span style="color:#E1E4E8">):</span></span>
+<span class="line"><span style="color:#E1E4E8">        doodle[linkType] </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> link.</span><span style="color:#B392F0">replace</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'/logos'</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">        break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">      case</span><span style="color:#E1E4E8"> link.</span><span style="color:#B392F0">startsWith</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'//www.google.com/logos/doodles'</span><span style="color:#E1E4E8">):</span></span>
+<span class="line"><span style="color:#E1E4E8">        doodle[linkType] </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> link.</span><span style="color:#B392F0">replace</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'//www.google.com/logos/doodles'</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">        break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">  });</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">writeJSON</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'doodles.all.norm.json'</span><span style="color:#E1E4E8">, allDoodles);</span></span>
+<span class="line"><span style="color:#B392F0">writeJSON</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'urls.json'</span><span style="color:#E1E4E8">, urlPrefixes);</span></span></code></pre>
+<h3 id="measuring-performance">Measuring performance</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> du</span><span style="color:#79B8FF"> -sh</span><span style="color:#79B8FF"> *</span><span style="color:#9ECBFF">.json</span></span>
+<span class="line"><span style="color:#B392F0">4.0K</span><span style="color:#9ECBFF">  countries.json</span></span>
+<span class="line"><span style="color:#B392F0">8.1M</span><span style="color:#9ECBFF">  doodles.all.json</span></span>
+<span class="line"><span style="color:#B392F0">1.9M</span><span style="color:#9ECBFF">  doodles.all.norm.json</span></span>
+<span class="line"><span style="color:#B392F0">12K</span><span style="color:#9ECBFF"> tags.json</span></span>
+<span class="line"><span style="color:#B392F0">4.0K</span><span style="color:#9ECBFF">  urls.json</span></span></code></pre>
+<p>The raw data is <code>8.1MB</code>.
+After normalising, we get <code>1.9M + 4.0K + 12K + 4.0KB</code>, which is still <code>1.9MB</code>.</p>
+<p>We have reduced our transfer sizes by over 4 times.</p>
+<hr>
+<h2 id="cleaning-up-the-gunk">Cleaning up the gunk</h2>
+<p>There’s still more work we can do.
+Right now, we are transferring all the 32 key-value pairs.
+Most of which we might not even need.</p>
+<p>Once we decide what attributes we must keep, we can create a schema for our data.</p>
+<blockquote>
+<p><strong>Schema</strong>
+a representation of a plan or theory in the form of an outline or model.</p>
+</blockquote>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// normalise.js</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// ...</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> schema</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> [</span></span>
+<span class="line"><span style="color:#6A737D">  /*</span></span>
+<span class="line"><span style="color:#6A737D">  'alternate_url',</span></span>
+<span class="line"><span style="color:#6A737D">  'blog_text',</span></span>
+<span class="line"><span style="color:#6A737D">  'call_to_action_image_url',</span></span>
+<span class="line"><span style="color:#6A737D">  'collection_id',</span></span>
+<span class="line"><span style="color:#6A737D">  'countries',</span></span>
+<span class="line"><span style="color:#6A737D">  'doodle_args',</span></span>
+<span class="line"><span style="color:#6A737D">  'doodle_type',</span></span>
+<span class="line"><span style="color:#6A737D">  'height',</span></span>
+<span class="line"><span style="color:#6A737D">  'hires_height',</span></span>
+<span class="line"><span style="color:#6A737D">  'hires_width',</span></span>
+<span class="line"><span style="color:#6A737D">  'history_doodles',</span></span>
+<span class="line"><span style="color:#6A737D">  'id',</span></span>
+<span class="line"><span style="color:#6A737D">  'is_animated_gif',</span></span>
+<span class="line"><span style="color:#6A737D">  'is_dynamic',</span></span>
+<span class="line"><span style="color:#6A737D">  'is_global',</span></span>
+<span class="line"><span style="color:#6A737D">  'is_highlighted',</span></span>
+<span class="line"><span style="color:#6A737D">  'name',</span></span>
+<span class="line"><span style="color:#6A737D">  'persistent_id',</span></span>
+<span class="line"><span style="color:#6A737D">  'query',</span></span>
+<span class="line"><span style="color:#6A737D">  'related_doodles',</span></span>
+<span class="line"><span style="color:#6A737D">  'share_text',</span></span>
+<span class="line"><span style="color:#6A737D">  'standalone_html',</span></span>
+<span class="line"><span style="color:#6A737D">  'tags',</span></span>
+<span class="line"><span style="color:#6A737D">  'translations',</span></span>
+<span class="line"><span style="color:#6A737D">  'width',</span></span>
+<span class="line"><span style="color:#6A737D">  'youtube_id',</span></span>
+<span class="line"><span style="color:#6A737D">  */</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#9ECBFF">  'hires_url'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">  'next_doodle'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">  'prev_doodle'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">  'run_date_array'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">  'title'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">  'url'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#9ECBFF">  '_id'</span><span style="color:#E1E4E8">, </span><span style="color:#6A737D">// unique ID for each doodle</span></span>
+<span class="line"><span style="color:#E1E4E8">];</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> cleanDoodles</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> allDoodles.</span><span style="color:#B392F0">map</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">doodle</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> schema.</span><span style="color:#B392F0">map</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">key</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> doodle[key]));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">writeJSON</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'doodles.clean.json'</span><span style="color:#E1E4E8">, cleanDoodles);</span></span>
+<span class="line"><span style="color:#B392F0">writeJSON</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'schema.json'</span><span style="color:#E1E4E8">, schema);</span></span></code></pre>
+<h3 id="measuring-performance-1">Measuring performance</h3>
+<p>Needless to say, removing such a large portion of our data will have strong impact on file size.
+Going from <code>1.9MB</code> to <code>116KB</code> is more than 16 times smaller.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> du</span><span style="color:#79B8FF"> -sh</span><span style="color:#9ECBFF"> doodles.clean.json</span></span>
+<span class="line"><span style="color:#B392F0">116K</span><span style="color:#9ECBFF">  doodles.clean.json</span></span></code></pre>
+<hr>
+<h2 id="packaging-and-compression">Packaging and Compression</h2>
+<h3 id="packaging">Packaging</h3>
+<p>The final part is packaging and compression.
+At the end of normalisation, we end up the following files:</p>
+<ul>
+<li><code>schema.json</code></li>
+<li><code>countries.json</code></li>
+<li><code>tags.json</code></li>
+<li><code>urls.json</code></li>
+</ul>
+<p>Fetching these 4 files require 8 round trips - from the client, to the server, and back to the client.
+On slow or intermittent connection, chances of any of those requests failing are high.
+We cannot start work on client-side until we have all the parts.</p>
+<p>We can bypass this small issue by writing everything to a single file:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// normalise.js</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// ...</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">writeJSON</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'meta.json'</span><span style="color:#E1E4E8">, {</span></span>
+<span class="line"><span style="color:#E1E4E8">  schema,</span></span>
+<span class="line"><span style="color:#E1E4E8">  countries: uniqueCountries,</span></span>
+<span class="line"><span style="color:#E1E4E8">  tags: uniqueTags,</span></span>
+<span class="line"><span style="color:#E1E4E8">  urls: urlPrefixes,</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// 12K</span></span></code></pre>
+<h3 id="compression">Compression</h3>
+<p>We can now compress our final JSON file with <code>bzip2</code> or use a higher compression ratio algorithm, like <a href="https://wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_chain_algorithm"><code>LZMA</code></a> or <a href="https://wikipedia.org/wiki/Brotli"><code>brotli</code></a>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> du</span><span style="color:#79B8FF"> -sh</span><span style="color:#9ECBFF"> doodles.clean.json</span></span>
+<span class="line"><span style="color:#B392F0">116K</span><span style="color:#9ECBFF">  doodles.clean.json</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> bzip2</span><span style="color:#79B8FF"> -kf</span><span style="color:#9ECBFF"> doodles.clean.json</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> du</span><span style="color:#79B8FF"> -sh</span><span style="color:#9ECBFF"> doodles.clean.json.bz2</span></span>
+<span class="line"><span style="color:#B392F0">24K</span><span style="color:#9ECBFF"> doodles.clean.json.bz2</span></span></code></pre>
+<h3 id="measuring-performance-2">Measuring performance</h3>
+<p>Packaging reduces the number of requests to the server and compression reduces our final size by another 4.8 times.</p>
+<p>To put things in contrast, we started out with 1 huge <code>8.1MB</code> file and ended up with 2 files that add up to <code>40KB</code>.
+This is a 200 times reduction.</p>
+<hr>
+<h2 id="the-end">The end</h2>
+<p>Here, we worked with 386 doodles, released in the year 2016 alone and although this gives us 200 times better transfers, going from <code>8MB</code> to <code>40KB</code> isn’t all that helpful.</p>
+<p>But Google has been releasing doodles since 1998.
+There are 3245 doodles released at time of writing this post that add up to <code>60MB</code>.</p>
+<p>If we apply the same pipeline on their entire dataset, we get out <code>52KB + 340KB</code> of metadata and compressed data.
+This is still 150 times better and more importantly, under <code>1MB</code>.
+This is <strong>HUGE!!</strong></p>
+<p>The rationale behind this is pretty straightforward.
+As the data size increases, so does redundancy.
+Reducing redundancy by performing normalising, proper filtering and finally performing compression will always bring down sizes in redundant data.
+And higher redundancy will mean better gains.</p>
+<p>The entire code used here is available in <a href="https://gist.github.com/zhirzh/7666c2742a2c7dfbd9859b05ee76aef1">this gist</a>.</p> <footer> <nav class="flex flex-wrap gap-x-10 gap-y-2"> <div>
+&larr;
+<a href="/my-blog/posts/2017-07-30-correct-blur/">The correct blur</a> </div> <div class="ms-auto"> <a href="/my-blog/posts/2017-09-02-mediarecorder/">Stream capturing with MediaRecorder</a>
+&rarr;
+</div> </nav> </footer> </article> <aside id="toc" class="prose dark:prose-invert sticky top-32 self-start text-xs leading-relaxed"> <div class="mb-4 text-xs">TABLE OF CONTENTS</div> <nav> <ul class="mt-0 mb-0 list-none ps-0 shadow-[-1px_0_0_0] shadow-slate-700"> <li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#working-dataset" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Working dataset </a>  </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#understanding-the-data" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Understanding the data </a>  </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#normalisation" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Normalisation </a> <ul class="mt-0 mb-0 list-none ps-0 shadow-[-1px_0_0_0] shadow-slate-700"> <li data-depth="3" class="mt-1 mb-2 px-4"> <a href="#measuring-performance" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Measuring performance </a>  </li> </ul> </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#cleaning-up-the-gunk" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Cleaning up the gunk </a> <ul class="mt-0 mb-0 list-none ps-0 shadow-[-1px_0_0_0] shadow-slate-700"> <li data-depth="3" class="mt-1 mb-2 px-4"> <a href="#measuring-performance-1" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Measuring performance </a>  </li> </ul> </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#packaging-and-compression" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Packaging and Compression </a> <ul class="mt-0 mb-0 list-none ps-0 shadow-[-1px_0_0_0] shadow-slate-700"> <li data-depth="3" class="mt-1 mb-2 px-4"> <a href="#packaging" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Packaging </a>  </li><li data-depth="3" class="mt-1 mb-2 px-4"> <a href="#compression" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Compression </a>  </li><li data-depth="3" class="mt-1 mb-2 px-4"> <a href="#measuring-performance-2" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Measuring performance </a>  </li> </ul> </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#the-end" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> The end </a>  </li> </ul> </nav> </aside> <script type="module">const r=new Map,d=Array.from(document.querySelectorAll("#toc a"));d.forEach(e=>{const t=e.getAttribute("href").replace("#",""),c=document.querySelector(`[id="${t}"]`);c&&r.set(c,e)});const s=Array.from(r.keys());let n,i;window.addEventListener("scroll",()=>{const{scrollTop:e}=document.documentElement;console.log(e);const o=s.findLast(t=>t.offsetTop<=e+240);if(i!==o&&(i=o,n&&(delete n.dataset.active,n=void 0),o)){const t=r.get(o);n=t,t.dataset.active="true"}});{const e=document.createElement("div");Object.assign(e.style,{position:"fixed",zIndex:9999,top:"240px",left:0,right:0,height:"1px",backgroundColor:"rgba(255 0 0 / 0.5)"}),document.body.append(e)}</script> </div>  </body></html>

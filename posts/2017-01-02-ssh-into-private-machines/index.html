@@ -1,0 +1,56 @@
+<!DOCTYPE html><html lang="en" class="scroll-pt-30 scroll-smooth"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.13.5"><title>Astro Basics</title><link rel="stylesheet" href="/my-blog/_astro/2016-10-08-flowtype-and-modern-js.B3-O7Wa6.css"></head> <body class="dark:bg-slate-900">  <div class="mx-auto grid max-w-5xl gap-x-10 py-30" style="grid-template-columns:minmax(0,1fr) 300px"> <article class="prose dark:prose-invert max-w-none"> <header> <h1>SSH Into Private Machines</h1> <time class="text-sm" datetime="2017-01-02T00:00:00.000Z"> January 2nd, 2017 </time> </header> <p>We can use SSH to access remote machines that are:</p>
+<ol>
+<li>running an SSH server/daemon</li>
+<li><strong>publicly</strong> accessible</li>
+</ol>
+<p>But it’s also possible to log into a private machine.</p>
+<p>Let’s look at two cases:</p>
+<ol>
+<li>public -> private</li>
+<li>private -> private</li>
+</ol>
+<!-- preview -->
+<hr>
+<h2 id="case-0">Case 0</h2>
+<p>First off, just to put it in clear, accessing a public machine is as simple as:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> ssh</span><span style="color:#9ECBFF"> remote_username@remote_machine</span></span></code></pre>
+<p>The command above connects us to the remote machine, which is running an SSH server on <code>port 22</code>.
+If you have the password/key needed, you will gain machine access.</p>
+<hr>
+<h2 id="case-1">Case 1</h2>
+<p>To access a private machine’s SSH server, we will use <em>remote port forwarding</em>.</p>
+<blockquote>
+<p>Remote Port Forwarding: A port on the remote (server) host is forwarded to a port on local host - <a href="http://unix.stackexchange.com/a/118650/73879/">stackexchange answer</a></p>
+</blockquote>
+<p>We will connect <code>port 22</code> on our machine (the <strong>private</strong> machine) to <code>port 2222</code> on the remote machine.
+This allows the remote machine to access local’s SSH server <strong>as if it were its own!</strong>.</p>
+<p>Next, we will issue the standard SSH login command, but with a tiny change - we will SSH to <code>localhost</code>.
+We do this because the remote machine has access to local’s SSH server <strong>as its own</strong>, running on <code>port 2222</code>.</p>
+<p>So, the username will be <code>local_username</code>, but the hostname will be <code>localhost</code>.</p>
+<p>Remember - local’s <code>port 22</code> <strong>is</strong> remote’s <code>port 2222</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#6A737D"># On our local machine</span></span>
+<span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> ssh</span><span style="color:#79B8FF"> -R</span><span style="color:#9ECBFF"> 2222:localhost:22</span><span style="color:#9ECBFF"> remote_username@remote_machine</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># On the remote machine</span></span>
+<span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> ssh</span><span style="color:#79B8FF"> -p</span><span style="color:#79B8FF"> 2222</span><span style="color:#9ECBFF"> local_username@localhost</span></span></code></pre>
+<p>And <em>voilà</em>.</p>
+<hr>
+<h2 id="case-2">Case 2</h2>
+<p>With 2 machines, <code>HOST_A</code> and <code>HOST_B</code>, neither accessible to the other, it is impossible to gain access of one from the other.</p>
+<p>But if we have a third, publicly accessible machine - <code>HOST_Z</code> - then it’s super easy.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#6A737D"># On HOST_B machine</span></span>
+<span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> ssh</span><span style="color:#79B8FF"> -R</span><span style="color:#9ECBFF"> 2222:localhost:22</span><span style="color:#9ECBFF"> user_z@HOST_Z</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># On HOST_A machine, as user_a</span></span>
+<span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> ssh</span><span style="color:#9ECBFF"> user_z@HOST_Z</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># On HOST_A machine, as user_z</span></span>
+<span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> ssh</span><span style="color:#79B8FF"> -p</span><span style="color:#79B8FF"> 2222</span><span style="color:#9ECBFF"> user_b@localhost</span></span></code></pre>
+<hr>
+<h2 id="the-end">The End</h2>
+<p>And there you have it.
+Now you too can access machines otherwise inaccessible to you.</p> <footer> <nav class="flex flex-wrap gap-x-10 gap-y-2"> <div>
+&larr;
+<a href="/my-blog/posts/2016-11-22-docker-and-dc++/">Docker and DC++</a> </div> <div class="ms-auto"> <a href="/my-blog/posts/2017-01-27-animating-dots-&#38;-dashes/">Animating Dots &amp; Dashes</a>
+&rarr;
+</div> </nav> </footer> </article> <aside id="toc" class="prose dark:prose-invert sticky top-32 self-start text-xs leading-relaxed"> <div class="mb-4 text-xs">TABLE OF CONTENTS</div> <nav> <ul class="mt-0 mb-0 list-none ps-0 shadow-[-1px_0_0_0] shadow-slate-700"> <li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#case-0" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Case 0 </a>  </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#case-1" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Case 1 </a>  </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#case-2" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Case 2 </a>  </li><li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#the-end" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> The End </a>  </li> </ul> </nav> </aside> <script type="module">const r=new Map,d=Array.from(document.querySelectorAll("#toc a"));d.forEach(e=>{const t=e.getAttribute("href").replace("#",""),c=document.querySelector(`[id="${t}"]`);c&&r.set(c,e)});const s=Array.from(r.keys());let n,i;window.addEventListener("scroll",()=>{const{scrollTop:e}=document.documentElement;console.log(e);const o=s.findLast(t=>t.offsetTop<=e+240);if(i!==o&&(i=o,n&&(delete n.dataset.active,n=void 0),o)){const t=r.get(o);n=t,t.dataset.active="true"}});{const e=document.createElement("div");Object.assign(e.style,{position:"fixed",zIndex:9999,top:"240px",left:0,right:0,height:"1px",backgroundColor:"rgba(255 0 0 / 0.5)"}),document.body.append(e)}</script> </div>  </body></html>

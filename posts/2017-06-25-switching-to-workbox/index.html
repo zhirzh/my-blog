@@ -1,0 +1,180 @@
+<!DOCTYPE html><html lang="en" class="scroll-pt-30 scroll-smooth"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.13.5"><title>Astro Basics</title><link rel="stylesheet" href="/my-blog/_astro/2016-10-08-flowtype-and-modern-js.B3-O7Wa6.css"></head> <body class="dark:bg-slate-900">  <div class="mx-auto grid max-w-5xl gap-x-10 py-30" style="grid-template-columns:minmax(0,1fr) 300px"> <article class="prose dark:prose-invert max-w-none"> <header> <h1>Switching to Workbox</h1> <time class="text-sm" datetime="2017-06-25T00:00:00.000Z"> June 25th, 2017 </time> </header> <p>Writing a good, healthy, bug-free service-worker script and its installer script is a pretty hefty task.
+There are multiple pitfalls and they aren’t always visible before time.
+The worst part is, if something goes wrong, things can get out of hand pretty quickly.</p>
+<p>Just watch this talk by Alexander Pope - <a href="https://www.youtube.com/watch?v=CPP9ew4Co0M">ServiceWorkers Outbreak</a>.</p>
+<!-- preview -->
+<h2 id="serviceworker-libraries">ServiceWorker libraries</h2>
+<p>In 2015, Google launched <a href="https://github.com/googlechrome/sw-precache"><code>sw-precache</code></a> and <a href="https://github.com/googlechrome/sw-toolbox"><code>sw-toolbox</code></a> for making our lives easier.</p>
+<h3 id="sw-precache">sw-precache</h3>
+<p>At first glance, it might appear to be a tool to simply cache static assets on page load.
+Turns out, it is a <em>one-size-fits-all</em> solution for writing service-workers.</p>
+<p>With a vast array of options to use, one can write a service-worker in a simple and declarative manner, without having to worry about implementations.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>cacheId                       [String]</span></span>
+<span class="line"><span>clientsClaim                  [Boolean]</span></span>
+<span class="line"><span>directoryIndex                [String]</span></span>
+<span class="line"><span>dontCacheBustUrlsMatching     [Regex]</span></span>
+<span class="line"><span>dynamicUrlToDependencies      [Object&#x3C;String, Buffer, Array&#x3C;String>>]</span></span>
+<span class="line"><span>handleFetch                   [boolean]</span></span>
+<span class="line"><span>ignoreUrlParametersMatching   [Array&#x3C;Regex>]</span></span>
+<span class="line"><span>importScripts                 [Array&#x3C;String>]</span></span>
+<span class="line"><span>logger                        [function]</span></span>
+<span class="line"><span>maximumFileSizeToCacheInBytes [Number]</span></span>
+<span class="line"><span>navigateFallback              [String]</span></span>
+<span class="line"><span>navigateFallbackWhitelist     [Array&#x3C;RegExp>]</span></span>
+<span class="line"><span>replacePrefix                 [String]</span></span>
+<span class="line"><span>runtimeCaching                [Array&#x3C;Object>]</span></span>
+<span class="line"><span>skipWaiting                   [Boolean]</span></span>
+<span class="line"><span>staticFileGlobs               [Array&#x3C;String>]</span></span>
+<span class="line"><span>stripPrefix                   [String]</span></span>
+<span class="line"><span>stripPrefixMulti              [Object]</span></span>
+<span class="line"><span>templateFilePath              [String]</span></span>
+<span class="line"><span>verbose                       [boolean]</span></span></code></pre>
+<hr>
+<h3 id="sw-toolbox">sw-toolbox</h3>
+<p>Maybe you have your own service-worker script.
+Maybe you don’t need all the pre-caching features and all you care about is runtime caching (caching certain network requests)</p>
+<p>This is where <code>sw-toolbox</code> comes in.
+It is a much smaller and lightweight module that deals specifically with runtime caching.</p>
+<p>Using <code>sw-toolbox</code> is also pretty easy.
+The whole process can be broken into parts:</p>
+<ol>
+<li>Add <code>sw-toolbox</code> to your <code>sw.js</code> with <a href="https://developer.mozilla.org/docs/Web/API/WorkerGlobalScope/importScripts"><code>importScripts()</code></a>.</li>
+<li>Setup routes and their handlers.</li>
+</ol>
+<p>Example:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>toolbox.router.get(</span></span>
+<span class="line"><span>  ':foo/index.html',</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>  function(request, values) {</span></span>
+<span class="line"><span>    return new Response('handled URL: ' + request.url);</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>);</span></span></code></pre>
+<hr>
+<h1 id="moving-towards-a-better-future">Moving towards a better future</h1>
+<p>Google talks about building a new, more modular tooling library <a href="https://github.com/googlechrome/sw-precache#future-of-service-worker-tooling">here</a>.</p>
+<blockquote>
+<p>In parallel, we are working on the next generation of Service Worker tooling over in <a href="https://github.com/googlechrome/workbox">Workbox</a>.
+This new work is more modular and will enable a number of libraries with additional capabilities to be built.</p>
+</blockquote>
+<p>Workbox is a new project that aims to modularise the whole service-worker build process, adding background sync and offline analytics.
+Workbox is also backwards compatible with <code>sw-precache</code> and <code>sw-toolbox</code> and adopts their options.</p>
+<p>Here’s a list of options that I’ve worked out from the source.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>sw-precache</th><th>workbox</th></tr></thead><tbody><tr><td>cacheId</td><td>cacheId</td></tr><tr><td>clientsClaim</td><td>clientsClaim</td></tr><tr><td>directoryIndex</td><td>directoryIndex</td></tr><tr><td>dontCacheBustUrlsMatching</td><td>dontCacheBustUrlsMatching</td></tr><tr><td>dynamicUrlToDependencies</td><td>dynamicUrlToDependencies <br> <strong>templatedUrls</strong></td></tr><tr><td>handleFetch</td><td>handleFetch</td></tr><tr><td>ignoreUrlParametersMatching</td><td>ignoreUrlParametersMatching</td></tr><tr><td>maximumFileSizeToCacheInBytes</td><td>maximumFileSizeToCacheInBytes</td></tr><tr><td>navigateFallback</td><td>navigateFallback</td></tr><tr><td>navigateFallbackWhitelist</td><td>navigateFallbackWhitelist</td></tr><tr><td>runtimeCaching</td><td>runtimeCaching</td></tr><tr><td>skipWaiting</td><td>skipWaiting</td></tr><tr><td>staticFileGlobs</td><td>staticFileGlobs <br> <strong>globPatterns</strong></td></tr><tr><td>importScripts</td><td></td></tr><tr><td>logger</td><td></td></tr><tr><td>templateFilePath</td><td></td></tr><tr><td>verbose</td><td></td></tr><tr><td></td><td>globDirectory</td></tr><tr><td></td><td>globIgnores</td></tr><tr><td></td><td>swDest</td></tr><tr><td></td><td>swSrc</td></tr><tr><td><em>replacePrefix <br> stripPrefix <br> stripPrefixMulti</em></td><td><em>modifyUrlPrefix</em></td></tr><tr><td>------------------------------------------------------</td><td>---------------------------------------------------</td></tr></tbody></table>
+<h2 id="usage">Usage</h2>
+<p>How to use Workbox, you say?</p>
+<p>Workbox’s <a href="https://workboxjs.org">official website</a> has all the documentation and loads of examples to help get started.
+Just to help you out, here are some common links:</p>
+<ul>
+<li><a href="https://workboxjs.org/get-started/webpack.html">webpack</a></li>
+<li><a href="https://workboxjs.org/get-started/gulp.html">gulp</a></li>
+<li><a href="https://workboxjs.org/get-started/npm-script.html">npm-scripts</a></li>
+<li><a href="https://workboxjs.org/how_tos/workbox-cli.html">cli</a></li>
+</ul>
+<p><strong>A word of caution</strong>.
+At the time of writing, Workbox is pretty young (<a href="https://github.com/GoogleChrome/workbox/releases">v1.0.1</a>) and the docs feel inadequate.
+If you’re a power-user and want to dive deep into docs before using third party software, you might not like working with Workbox.</p> <footer> <nav class="flex flex-wrap gap-x-10 gap-y-2"> <div>
+&larr;
+<a href="/my-blog/posts/2017-05-25-react-router-twitter-pinterest-style/">react-router in Twitter and Pinterest style</a> </div> <div class="ms-auto"> <a href="/my-blog/posts/2017-07-22-obfuscation-with-protext/">Obfuscation with Protext</a>
+&rarr;
+</div> </nav> </footer> </article> <aside id="toc" class="prose dark:prose-invert sticky top-32 self-start text-xs leading-relaxed"> <div class="mb-4 text-xs">TABLE OF CONTENTS</div> <nav> <ul class="mt-0 mb-0 list-none ps-0 shadow-[-1px_0_0_0] shadow-slate-700"> <li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#serviceworker-libraries" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> ServiceWorker libraries </a> <ul class="mt-0 mb-0 list-none ps-0 shadow-[-1px_0_0_0] shadow-slate-700"> <li data-depth="3" class="mt-1 mb-2 px-4"> <a href="#sw-precache" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> sw-precache </a>  </li><li data-depth="3" class="mt-1 mb-2 px-4"> <a href="#sw-toolbox" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> sw-toolbox </a>  </li> </ul> </li><li data-depth="1" class="mt-1 mb-2 px-4"> <a href="#moving-towards-a-better-future" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Moving towards a better future </a> <ul class="mt-0 mb-0 list-none ps-0 shadow-[-1px_0_0_0] shadow-slate-700"> <li data-depth="2" class="mt-1 mb-2 px-4"> <a href="#usage" class="font-normal text-(--tw-prose-body) px-2 py-2 no-underline hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:font-medium data-[active]:text-(--tw-prose-links)"> Usage </a>  </li> </ul> </li> </ul> </nav> </aside> <script type="module">const r=new Map,d=Array.from(document.querySelectorAll("#toc a"));d.forEach(e=>{const t=e.getAttribute("href").replace("#",""),c=document.querySelector(`[id="${t}"]`);c&&r.set(c,e)});const s=Array.from(r.keys());let n,i;window.addEventListener("scroll",()=>{const{scrollTop:e}=document.documentElement;console.log(e);const o=s.findLast(t=>t.offsetTop<=e+240);if(i!==o&&(i=o,n&&(delete n.dataset.active,n=void 0),o)){const t=r.get(o);n=t,t.dataset.active="true"}});{const e=document.createElement("div");Object.assign(e.style,{position:"fixed",zIndex:9999,top:"240px",left:0,right:0,height:"1px",backgroundColor:"rgba(255 0 0 / 0.5)"}),document.body.append(e)}</script> </div>  </body></html>
