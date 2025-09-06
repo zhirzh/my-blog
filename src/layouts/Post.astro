@@ -1,30 +1,51 @@
 ---
 import Layout from '@/layouts/Root.astro'
-import type { MdProps, Post } from '@/types'
+import type { MdLayoutProps } from '@/types'
+import { getPost, type Frontmatter } from '@/utils'
 
-type Props = MdProps<Frontmatter>
+type Props = MdLayoutProps<Frontmatter>
 
-type Frontmatter = {
-   layout: string
-   title: string
-   date: string
-}
+const { file, headings } = Astro.props
 
-const posts = import.meta.glob<Post<Frontmatter>>('@/pages/posts/**/*.md', {
-   eager: true,
-})
-
-const sortedPosts = Object.values(posts).sort((a, b) =>
-   a.frontmatter.date.localeCompare(b.frontmatter.date),
-)
-
-const post = sortedPosts.find((p) => p.url === Astro.props.url)!
-
-const i = sortedPosts.indexOf(post)
-const nextPost = sortedPosts[i + 1]
-const prevPost = sortedPosts[i - 1]
+const post = getPost(file)
+const { nextPost, prevPost } = post
 ---
 
 <Layout>
-   <slot />
+   <div
+      class='mx-auto grid max-w-5xl gap-x-10 py-30'
+      style={{ 'grid-template-columns': 'minmax(0,1fr) 300px' }}
+   >
+      <article class='prose max-w-none dark:prose-invert'>
+         <header>
+            <h1>{post.frontmatter.title}</h1>
+            <time class='text-sm' datetime={post.frontmatter.date}>
+               {post.formattedDate}
+            </time>
+         </header>
+
+         <slot />
+
+         <footer class='mt-20'>
+            <nav class='flex flex-wrap gap-x-10 gap-y-2'>
+               {
+                  prevPost && (
+                     <div>
+                        &larr;
+                        <a href={prevPost.url}>{prevPost.frontmatter.title}</a>
+                     </div>
+                  )
+               }
+               {
+                  nextPost && (
+                     <div class='ms-auto'>
+                        <a href={nextPost.url}>{nextPost.frontmatter.title}</a>
+                        &rarr;
+                     </div>
+                  )
+               }
+            </nav>
+         </footer>
+      </article>
+   </div>
 </Layout>
