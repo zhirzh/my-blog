@@ -5,6 +5,11 @@ import { defineConfig } from 'astro/config'
 export default defineConfig({
    base: '/my-blog',
 
+   prefetch: {
+      prefetchAll: true,
+      defaultStrategy: 'viewport',
+   },
+
    vite: {
       plugins: [tailwindcss()],
    },

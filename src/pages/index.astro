@@ -1,7 +1,26 @@
 ---
 import Layout from '@/layouts/Root.astro'
+import { getPosts } from '@/utils'
+
+const posts = await getPosts()
 ---
 
 <Layout>
-   <h1>Hello World</h1>
+   <div class='mx-auto prose py-30 dark:prose-invert'>
+      {
+         posts.map((post) => (
+            <div>
+               <h2>
+                  <a href={post.url} class='no-underline'>
+                     {post.frontmatter.title}
+                  </a>
+               </h2>
+
+               <Fragment set:html={post.preview} />
+
+               <a href={post.url}>Read more</a>
+            </div>
+         ))
+      }
+   </div>
 </Layout>

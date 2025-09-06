@@ -8,25 +8,36 @@ export type Frontmatter = {
 
 type Post = MdInstance<Frontmatter> & {
    formattedDate: string
+   preview: string
    nextPost: Post | undefined
    prevPost: Post | undefined
 }
 
-export function getPost(file: string) {
+async function loadPostFile(file: MdInstance<Frontmatter>) {
+   const formattedDate = getFormattedDate(file.frontmatter.date)
+   const content = await file.compiledContent()
+   const preview = content.split('<!-- preview -->')[0]!
+
+   const post: Post = {
+      ...file,
+      formattedDate,
+      preview,
+      nextPost: undefined,
+      prevPost: undefined,
+   }
+
+   return post
+}
+
+export async function getPosts() {
    const files = import.meta.glob<MdInstance<Frontmatter>>(
       '@/pages/posts/**/*.md',
       { eager: true },
    )
 
-   const posts = Object.values(files).map<Post>((file) => {
-      const formattedDate = getFormattedDate(file.frontmatter.date)
-      return {
-         ...file,
-         formattedDate,
-         nextPost: undefined,
-         prevPost: undefined,
-      }
-   })
+   const posts = await Promise.all(
+      Object.values(files).map((file) => loadPostFile(file)),
+   )
 
    posts.sort((a, b) => {
       const aDate = a.frontmatter.date
@@ -39,6 +50,11 @@ export function getPost(file: string) {
       post.prevPost = posts[i - 1]
    })
 
+   return posts
+}
+
+export async function getPost(file: string) {
+   const posts = await getPosts()
    const post = posts.find((p) => p.file === file)!
    return post
 }

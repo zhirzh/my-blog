@@ -8,7 +8,7 @@ type Props = MdLayoutProps<Frontmatter>
 
 const { file, headings } = Astro.props
 
-const post = getPost(file)
+const post = await getPost(file)
 const { nextPost, prevPost } = post
 ---
 
