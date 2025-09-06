@@ -1,0 +1,86 @@
+---
+import TocTree from '@/components/TocTree.astro'
+import type { MdHeading } from '@/types'
+import { getHeadingTree } from '@/utils'
+
+type Props = {
+   headings: MdHeading[]
+   class?: string
+}
+
+const { headings, class: className } = Astro.props
+const headingTree = getHeadingTree(headings)
+---
+
+<aside id='toc' class={className}>
+   <div class='mb-3 text-xs'>TABLE OF CONTENTS</div>
+   <nav>
+      <TocTree headings={headingTree} />
+   </nav>
+</aside>
+
+<script>
+   const debug = false
+
+   const contentTop = 4 * 30 // TODO: use CSS variable
+   const threshold = contentTop + 100
+
+   const tocLinks = Array.from(
+      document.querySelectorAll<HTMLAnchorElement>('#toc a'),
+   )
+
+   const toc = tocLinks
+      .map((a) => {
+         const href = a.getAttribute('href')!
+         const id = href.replace('#', '')
+         const h = document.querySelector<HTMLHeadingElement>(`[id="${id}"]`)
+         if (!h) return null
+         return { heading: h, link: a }
+      })
+      .filter(Boolean)
+
+   let prevLink: HTMLAnchorElement | undefined
+   let prevHeading: HTMLHeadingElement | undefined
+   const updateActiveTocLink = () => {
+      const { scrollTop } = document.documentElement
+
+      const activeTocItem = toc.findLast(
+         ({ heading }) => heading.offsetTop < scrollTop + threshold,
+      )
+
+      if (!activeTocItem) return
+
+      const { heading, link } = activeTocItem
+      if (prevHeading === heading) return
+
+      link.dataset.active = 'true'
+
+      if (prevLink) {
+         delete prevLink.dataset.active
+         prevLink = undefined
+      }
+
+      prevHeading = heading
+      prevLink = link
+   }
+
+   window.addEventListener('scroll', updateActiveTocLink)
+   updateActiveTocLink()
+
+   if (debug) {
+      const thresholdMarker = document.createElement('div')
+
+      Object.assign(thresholdMarker.style, {
+         position: 'fixed',
+         zIndex: 9999,
+         top: threshold + 'px',
+         left: 0,
+         right: 0,
+         height: '1px',
+         backgroundColor: 'red',
+         opacity: 0.5,
+      })
+
+      document.body.append(thresholdMarker)
+   }
+</script>

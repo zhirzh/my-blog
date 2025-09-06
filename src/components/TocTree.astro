@@ -1,0 +1,61 @@
+---
+import type { HeadingTree } from '@/types'
+
+type Props = {
+   nested?: number
+   headings: HeadingTree[]
+}
+
+const { nested = 1, headings } = Astro.props
+---
+
+<ul
+   class:list={[
+      'mt-0 mb-0 list-none ps-0', // reset prose
+   ]}
+>
+   {
+      headings.map((h) => (
+         <li
+            data-depth={h.depth}
+            class:list={[
+               'mt-0 mb-0 ps-0', // reset prose
+            ]}
+         >
+            <span
+               class:list={[
+                  'py-1',
+                  '-ms-px inline-block border-s border-(--tw-prose-hr) has-[a[data-active]]:border-(--tw-prose-links)',
+                  'hover:border-(--tw-prose-links)',
+                  {
+                     1: 'ps-2',
+                     2: 'ps-5',
+                     3: 'ps-8',
+                     4: 'ps-10',
+                     5: 'ps-12',
+                     6: 'ps-14',
+                  }[
+                     // nested
+                     h.depth - 1
+                  ],
+               ]}
+            >
+               <a
+                  href={'#' + h.slug}
+                  class:list={[
+                     'font-normal text-(--tw-prose-body)', // reset prose
+                     'inline-block px-0.5 py-px no-underline data-[active]:font-medium',
+                     'text-(--tw-prose-captions) hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:text-(--tw-prose-links)',
+                  ]}
+               >
+                  {h.text}
+               </a>
+            </span>
+
+            {h.children.length > 0 && (
+               <Astro.self nested={nested + 1} headings={h.children} />
+            )}
+         </li>
+      ))
+   }
+</ul>

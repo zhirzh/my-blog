@@ -1,4 +1,5 @@
 ---
+import Toc from '@/components/Toc.astro'
 import Layout from '@/layouts/Root.astro'
 import type { MdLayoutProps } from '@/types'
 import { getPost, type Frontmatter } from '@/utils'
@@ -19,6 +20,7 @@ const { nextPost, prevPost } = post
       <article class='prose max-w-none dark:prose-invert'>
          <header>
             <h1>{post.frontmatter.title}</h1>
+
             <time class='text-sm' datetime={post.frontmatter.date}>
                {post.formattedDate}
             </time>
@@ -47,5 +49,10 @@ const { nextPost, prevPost } = post
             </nav>
          </footer>
       </article>
+
+      <Toc
+         headings={headings}
+         class='sticky top-32 prose self-start text-xs leading-relaxed dark:prose-invert'
+      />
    </div>
 </Layout>
