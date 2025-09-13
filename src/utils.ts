@@ -16,7 +16,10 @@ type Post = MdInstance<Frontmatter> & {
 async function loadPostFile(file: MdInstance<Frontmatter>) {
    const formattedDate = getFormattedDate(file.frontmatter.date)
    const content = await file.compiledContent()
-   const preview = content.split('<!-- preview -->')[0]!
+
+   // const preview = content.split('<!-- preview -->')[0]
+   const preview = content.match(/(<p>.*?<\/p>)/s)?.[1]
+   if (!preview) throw new Error('No preview found')
 
    const post: Post = {
       ...file,
@@ -42,7 +45,7 @@ export async function getPosts() {
    posts.sort((a, b) => {
       const aDate = a.frontmatter.date
       const bDate = b.frontmatter.date
-      return aDate.localeCompare(bDate)
+      return bDate.localeCompare(aDate)
    })
 
    posts.forEach((post, i) => {
