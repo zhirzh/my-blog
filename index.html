@@ -1,117 +1,19 @@
-<!DOCTYPE html><html lang="en" class="scroll-pt-30 scroll-smooth"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.13.7"><title>Astro Basics</title><!-- <ClientRouter /> --><link rel="stylesheet" href="/my-blog/_astro/2016-10-08-flowtype-and-modern-js.BotGATJu.css"><script type="module" src="/my-blog/_astro/page.DTIbhfSr.js"></script></head> <body class="dark:bg-slate-900">  <div class="mx-auto prose py-30 dark:prose-invert"> <div> <h2> <a href="/my-blog/posts/2016-10-08-flowtype-and-modern-js" class="no-underline"> Flowtype and modern JS </a> </h2> <p>As we all know, JavaScript is <em>loose typed</em> - variables are declared without a type.
-And like everything, not having explicitly mentioned data types had its pros and cons.</p>
-<p>One of the advantages is that the development process is much smoother, as JS is much more tolerant towards type mismatches.
-But that can also be seen as a disadvantage.</p>
- <a href="/my-blog/posts/2016-10-08-flowtype-and-modern-js">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2016-10-11-timing-controls" class="no-underline"> Timing Controls </a> </h2> <p>JavaScript follows the Event-driven programming paradigm.
-This means that <em>actions</em> can activate <em>reactions</em>.
-We call these actions <code>events</code>, and reactions <code>callbacks</code>.
-A continuous flow of events is called an <code>event stream</code>.</p>
-<p>The speed at which these <em>actions</em> occur is out of our hand.
-But we can control when and how to activate the proper <em>reactions</em>.
-There are some techniques that provide us precise control.</p>
-<ol>
-<li>Throttle</li>
-<li>Debounce</li>
-<li>Immediate</li>
-</ol>
- <a href="/my-blog/posts/2016-10-11-timing-controls">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2016-10-18-timing-controls-2" class="no-underline"> Timing Controls - Part 2 </a> </h2> <p>In a <a href="/my-blog/posts/2016-10-11-timing-controls">previous post</a>, we looked at some techniques to control the timings of functions (callbacks), triggered when specific events are fired. The techniques are:</p>
-<ol>
-<li>Debounce</li>
-<li>Immediate</li>
-<li>Throttle</li>
-</ol>
-<p>In this post, we will see how those techniques can be implemented as a generic API, in the form of <a href="https://en.wikipedia.org/wiki/Higher-order_function">higher order functions</a>.</p>
- <a href="/my-blog/posts/2016-10-18-timing-controls-2">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2016-10-20-timing-controls-3" class="no-underline"> Timing Controls - Part 3 </a> </h2> <p><em>This is small one.</em></p>
-<p>In a <a href="/my-blog/posts/2016-10-18-timing-controls-2">previous post</a>, we looked at higher order implementations of the techniques discussed in <a href="/my-blog/posts/2016-10-11-timing-controls">another post</a>.</p>
-<p>In this post, we’ll look at <a href="https://developer.mozilla.org/docs/Web/API/window/requestAnimationFrame"><code>requestAnimationFrame</code></a>.</p>
- <a href="/my-blog/posts/2016-10-20-timing-controls-3">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2016-11-10-react-angular-trends-phenomenon" class="no-underline"> Weird phenomenon in Google Trends for ReactJS and AngularJS </a> </h2> <p><a href="https://www.google.com/trends/">Google Trends</a> shows and compares how frequent particular terms were searched for in google.
-So like, it tells you how <em>popular</em> something is.</p>
-<p>Being a JS enthusiast, I wanted to see how <a href="https://facebook.github.io/react/">ReactJS</a> fairs against <a href="https://angularjs.org/">AngularJS</a>.
-This is the trends chart:</p>
-<script type="text/javascript" src="https://ssl.gstatic.com/trends_nrtr/4215_RC01/embed_loader.js"></script>
-<script type="text/javascript">
-trends.embed.renderExploreWidget("TIMESERIES", {"comparisonItem":[{"keyword":"/m/012l1vxv","geo":"","time":"2015-01-01 2018-12-31"},{"keyword":"/m/0j45p7w","geo":"","time":"2015-01-01 2018-12-31"}],"category":0,"property":""}, {"exploreQuery":"date=2015-01-01%202018-12-31&q=%2Fm%2F012l1vxv,%2Fm%2F0j45p7w","guestPath":"https://trends.google.com:443/trends/embed/"});
-</script>
-<p>Each year since 2013, somewhere around 28th December, AngularJS falls quite a bit.
-And React goes up by a small, yet increasing, percentage.</p>
-<p>As a simple google search didn’t yield any results, I now turn to the community.</p> <a href="/my-blog/posts/2016-11-10-react-angular-trends-phenomenon">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2016-11-22-docker-and-dc++" class="no-underline"> Docker and DC++ </a> </h2> <p>When I first started using <a href="https://www.docker.com/">Docker</a>, I was unable to use <a href="https://launchpad.net/linuxdcpp/">LinuxDC++</a> (my DC++ client).
-I kept getting this pesky error.</p>
-<blockquote>
-<p>Connect failed: No route to host</p>
-</blockquote>
-<p>So I did what most of us would do in such a situation: <code>purge and install</code>.
-Nothing happened.</p>
-<p>Then I went to the internet, asking for help.
-People suggested that there’s something wrong with my firewall config, that my <code>iptables</code> rules were messed up.
-But that wasn’t the case.</p>
-<p>I installed other DC++ clients - <a href="https://github.com/eiskaltdcpp/eiskaltdcpp/">EiskaltDC++</a>, <a href="http://wxdcgui.sourceforge.net/">Valknut</a> - hoping that there’s something wrong with my original client.
-But I was let down, yet again.</p>
-<p>I thought to myself, <em>maybe I don’t need</em> docker.</p>
- <a href="/my-blog/posts/2016-11-22-docker-and-dc++">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2017-01-02-ssh-into-private-machines" class="no-underline"> SSH Into Private Machines </a> </h2> <p>We can use SSH to access remote machines that are:</p>
-<ol>
-<li>running an SSH server/daemon</li>
-<li><strong>publicly</strong> accessible</li>
-</ol>
-<p>But it’s also possible to log into a private machine.</p>
-<p>Let’s look at two cases:</p>
-<ol>
-<li>public -> private</li>
-<li>private -> private</li>
-</ol>
- <a href="/my-blog/posts/2017-01-02-ssh-into-private-machines">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2017-01-27-animating-dots-&#38;-dashes" class="no-underline"> Animating Dots &amp; Dashes </a> </h2> <p>Using dashed-dotted-lines to create <em>sweet and simple</em> animations.</p>
- <a href="/my-blog/posts/2017-01-27-animating-dots-&#38;-dashes">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2017-01-30-browser-history-functioning-&#38;-loopback-gotcha" class="no-underline"> Browser history functioning and loopback gotcha </a> </h2> <p>According to MDN,</p>
-<blockquote>
-<p>The <a href="https://developer.mozilla.org/en/docs/Web/API/History"><code>History</code></a> interface allows to manipulate the browser <em>session history</em>, that is the pages visited in the tab or frame that the current page is loaded in.</p>
-</blockquote>
-<p>But how exactly does the browser keep track of the visited pages?</p>
- <a href="/my-blog/posts/2017-01-30-browser-history-functioning-&#38;-loopback-gotcha">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2017-05-25-react-router-twitter-pinterest-style" class="no-underline"> react-router in Twitter and Pinterest style </a> </h2> <p>Modals are the de facto tool used to show notices and alerts, related content, and the pesky “Please subscribe” requests.</p>
-<p>Twitter and Pinterest are two websites that use modals heavily.
-I’d go as far as to say that they use modals as a central components of their design, and not just some auxiliary tools.</p>
- <a href="/my-blog/posts/2017-05-25-react-router-twitter-pinterest-style">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2017-06-25-switching-to-workbox" class="no-underline"> Switching to Workbox </a> </h2> <p>Writing a good, healthy, bug-free service-worker script and its installer script is a pretty hefty task.
-There are multiple pitfalls and they aren’t always visible before time.
-The worst part is, if something goes wrong, things can get out of hand pretty quickly.</p>
-<p>Just watch this talk by Alexander Pope - <a href="https://www.youtube.com/watch?v=CPP9ew4Co0M">ServiceWorkers Outbreak</a>.</p>
- <a href="/my-blog/posts/2017-06-25-switching-to-workbox">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2017-07-22-obfuscation-with-protext" class="no-underline"> Obfuscation with Protext </a> </h2> <p>Obfuscation is the process of making something obscure, unclear, or unintelligible.
-Obfuscation techniques, such as markup mangling, work great for deterring people from understanding the codebase.
-Beyond that, mangling serves no purpose for the end user.</p>
-<p>Recently, I came across a new and very unique obfuscation technique.
-One that focuses on the content <em>rendered</em> on the screen, not the underlying code.</p>
- <a href="/my-blog/posts/2017-07-22-obfuscation-with-protext">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2017-07-30-correct-blur" class="no-underline"> The correct blur </a> </h2> <p>In the past week, I learned that the RGB values stored in digital media are not the same as they were recorded.
-This isn’t some lossy compression algorithm artifact, but rather a clever tactic.
-The range of all possible intensity values is reduced.</p>
-<p>In the days when storage spaces were tiny and these <em>adjustments</em> helped.
-But the same adjustments can hinder photo editing processes.</p>
- <a href="/my-blog/posts/2017-07-30-correct-blur">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2017-08-27-tiny-transfers" class="no-underline"> Tiny transfers </a> </h2> <p>It’s hard to pin down why JSON transfers is so popular.
-But one thing’s for sure, it is <strong>not</strong> the most efficient when it comes to data transfers.</p>
-<p>The nested nature of JSON makes it prone to redundant storage and transferring redundant JSON files only puts strain on the server’s and the client’s bandwidth.</p>
-<p>It is always a good idea to <em>deflate</em> your JSON data before transferring to the other side.</p>
- <a href="/my-blog/posts/2017-08-27-tiny-transfers">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2017-09-02-mediarecorder" class="no-underline"> Stream capturing with MediaRecorder </a> </h2> <p>The new <a href="https://developer.mozilla.org/docs/Web/API/MediaRecorder"><code>MediaRecorder</code></a> WebAPI makes media recording super easy.
+<!DOCTYPE html><html lang="en" class="scroll-pt-30 scroll-smooth"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.13.7"><title>Astro Basics</title><meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback" content="animate"><script type="module" src="/my-blog/_astro/ClientRouter.astro_astro_type_script_index_0_lang.1k2cUud7.js"></script><link rel="stylesheet" href="/my-blog/_astro/2016-10-08-flowtype-and-modern-js.yeZVUhO2.css"><script type="module" src="/my-blog/_astro/page.BNYwb576.js"></script></head> <body class="dark:bg-slate-900">  <div class="mx-auto prose py-30 dark:prose-invert"> <div> <h2> <a href="/my-blog/posts/medium/2020-01-04-Classes-in-JavaScript-then-and-now" class="no-underline"> Classes in JavaScript, then and now </a> </h2> <p>And TypeScript too</p> <a href="/my-blog/posts/medium/2020-01-04-Classes-in-JavaScript-then-and-now">Read more</a> </div><div> <h2> <a href="/my-blog/posts/medium/2020-01-01-FizzBuzz-test-using-RxJS" class="no-underline"> FizzBuzz test using RxJS </a> </h2> <p>FizzBuzz test is a simple proWhat is this FizzBuzz test?</p> <a href="/my-blog/posts/medium/2020-01-01-FizzBuzz-test-using-RxJS">Read more</a> </div><div> <h2> <a href="/my-blog/posts/medium/2018-10-22-Making-CRA-apps-work-with-SSR-Part-1" class="no-underline"> Making CRA apps work with SSR — Part 1 </a> </h2> <p>Off to a simple start</p> <a href="/my-blog/posts/medium/2018-10-22-Making-CRA-apps-work-with-SSR-Part-1">Read more</a> </div><div> <h2> <a href="/my-blog/posts/medium/2018-10-22-Making-CRA-apps-work-with-SSR-Part-2" class="no-underline"> Making CRA apps work with SSR — Part 2 </a> </h2> <p>Adding support for static assets</p> <a href="/my-blog/posts/medium/2018-10-22-Making-CRA-apps-work-with-SSR-Part-2">Read more</a> </div><div> <h2> <a href="/my-blog/posts/medium/2018-10-22-Making-CRA-apps-work-with-SSR-Part-3" class="no-underline"> Making CRA apps work with SSR — Part 3 </a> </h2> <p>Integrating Redux</p> <a href="/my-blog/posts/medium/2018-10-22-Making-CRA-apps-work-with-SSR-Part-3">Read more</a> </div><div> <h2> <a href="/my-blog/posts/medium/2018-10-22-Making-CRA-apps-work-with-SSR-Part-4" class="no-underline"> Making CRA apps work with SSR — Part 4 </a> </h2> <p>Routing with react-router</p> <a href="/my-blog/posts/medium/2018-10-22-Making-CRA-apps-work-with-SSR-Part-4">Read more</a> </div><div> <h2> <a href="/my-blog/posts/medium/2018-04-03-Calculating-browser-support-for-the-web" class="no-underline"> Calculating browser support for the web </a> </h2> <p>As time moves forward, the web evolves, and brings new APIs with it. When working on a product, including one or two bleeding-edge APIs…</p> <a href="/my-blog/posts/medium/2018-04-03-Calculating-browser-support-for-the-web">Read more</a> </div><div> <h2> <a href="/my-blog/posts/medium/2018-03-27-Negative-Indexing-Multi-Arrays-in-C" class="no-underline"> Negative Indexing Multi Arrays in C/++ </a> </h2> <p>A convenient untruth — Multi Arrays in C/++</p> <a href="/my-blog/posts/medium/2018-03-27-Negative-Indexing-Multi-Arrays-in-C">Read more</a> </div><div> <h2> <a href="/my-blog/posts/medium/2018-03-03-The-Redux-Type-Flow-revisited-in-2018" class="no-underline"> The Redux Type Flow (revisited in 2018) </a> </h2> <p>Exploring type safety in Redux using Flow</p> <a href="/my-blog/posts/medium/2018-03-03-The-Redux-Type-Flow-revisited-in-2018">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2017-12-06-prototype-tree" class="no-underline"> Prototype Tree </a> </h2> <p>Anyone who has worked with JS long enough knows something or the other about delegation, prototype chains, <a href="http://2ality.com/2012/10/dunder.html">dunder proto</a> and other similar things.
+There are times when I wonder how complex and deep this chaining can be.
+This past week, however, my curiosity got the best of me and I just had to find the answer for myself.</p> <a href="/my-blog/posts/2017-12-06-prototype-tree">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2017-11-30-cra-with-ssr" class="no-underline"> Making CRA apps work with SSR </a> </h2> <p>This is a multi-post series about how to server-side-render react apps that were built using create-react-app. You can read more about how and why I came up with this below.</p> <a href="/my-blog/posts/2017-11-30-cra-with-ssr">Read more</a> </div><div> <h2> <a href="/my-blog/posts/medium/2017-11-07-Making-CRA-apps-work-with-SSR" class="no-underline"> Making CRA apps work with SSR </a> </h2> <p>Make SSR simple again</p> <a href="/my-blog/posts/medium/2017-11-07-Making-CRA-apps-work-with-SSR">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2017-09-02-mediarecorder" class="no-underline"> Stream capturing with MediaRecorder </a> </h2> <p>The new <a href="https://developer.mozilla.org/docs/Web/API/MediaRecorder"><code>MediaRecorder</code></a> WebAPI makes media recording super easy.
 It allows storing chunks of data from a <a href="https://developer.mozilla.org/docs/Web/API/MediaStream">media stream</a> as blobs, which can later be concatenated and saved as a single file.
 As time passes, more sources of media streams are added.
-We can capture media from:</p>
-<ul>
-<li>Media Devices</li>
-<li>Canvas</li>
-<li>Media Elements:
-<ul>
-<li><code>&#x3C;video /></code></li>
-<li><code>&#x3C;audio /></code></li>
-</ul>
-</li>
-</ul>
- <a href="/my-blog/posts/2017-09-02-mediarecorder">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2017-11-30-cra-with-ssr" class="no-underline"> Making CRA apps work with SSR </a> </h2> <p>This is a multi-post series about how to server-side-render react apps that were built using create-react-app. You can read more about how and why I came up with this below.</p>
-<p><a href="https://medium.com/@zhirzh/making-cra-apps-work-with-ssr-part-1-8f5f813d510b">Part 1</a>: Off to a simple start
-I start off simple. A barebones app can’t even deal with css, but helps explain the process involved.</p>
-<p><a href="https://medium.com/@zhirzh/making-cra-apps-work-with-ssr-part-1-5-7b5a04e5415c">Part 1.5</a>: Amending mistakes
-Once the base system is up and running, it was time to patch it up. Make it work with css and other stuff.</p>
-<p><a href="https://medium.com/@zhirzh/making-cra-apps-work-with-ssr-part-2-fb871868216e">Part 2</a>: Integrating Redux
-Redux works great with react. So I had to fit it in. But instead of simply embedding the data. I moved things up a notch.</p>
-<p><a href="https://medium.com/@zhirzh/making-cra-apps-work-with-ssr-part-3-199d70b4cbe5">Part 3</a>: Routing with react-router
-We’ll explore static and dynamic routing with react-router, along with handling route params and redux integration.</p>
-<p>You can read more on this
-<a href="https://hackernoon.com/making-cra-apps-work-with-ssr-b45f7c23d8db">on hackernoon</a>.
-The code used in the series is
-<a href="https://github.com/zhirzh/cra_with_ssr">here on github</a>.</p> <a href="/my-blog/posts/2017-11-30-cra-with-ssr">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2017-12-06-prototype-tree" class="no-underline"> Prototype Tree </a> </h2> <p>Anyone who has worked with JS long enough knows something or the other about delegation, prototype chains, <a href="http://2ality.com/2012/10/dunder.html">dunder proto</a> and other similar things.
-There are times when I wonder how complex and deep this chaining can be.
-This past week, however, my curiosity got the best of me and I just had to find the answer for myself.</p>
- <a href="/my-blog/posts/2017-12-06-prototype-tree">Read more</a> </div> </div>  </body></html>
+We can capture media from:</p> <a href="/my-blog/posts/2017-09-02-mediarecorder">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2017-08-27-tiny-transfers" class="no-underline"> Tiny transfers </a> </h2> <p>It’s hard to pin down why JSON transfers is so popular.
+But one thing’s for sure, it is <strong>not</strong> the most efficient when it comes to data transfers.</p> <a href="/my-blog/posts/2017-08-27-tiny-transfers">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2017-07-30-correct-blur" class="no-underline"> The correct blur </a> </h2> <p>In the past week, I learned that the RGB values stored in digital media are not the same as they were recorded.
+This isn’t some lossy compression algorithm artifact, but rather a clever tactic.
+The range of all possible intensity values is reduced.</p> <a href="/my-blog/posts/2017-07-30-correct-blur">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2017-07-22-obfuscation-with-protext" class="no-underline"> Obfuscation with Protext </a> </h2> <p>Obfuscation is the process of making something obscure, unclear, or unintelligible.
+Obfuscation techniques, such as markup mangling, work great for deterring people from understanding the codebase.
+Beyond that, mangling serves no purpose for the end user.</p> <a href="/my-blog/posts/2017-07-22-obfuscation-with-protext">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2017-06-25-switching-to-workbox" class="no-underline"> Switching to Workbox </a> </h2> <p>Writing a good, healthy, bug-free service-worker script and its installer script is a pretty hefty task.
+There are multiple pitfalls and they aren’t always visible before time.
+The worst part is, if something goes wrong, things can get out of hand pretty quickly.</p> <a href="/my-blog/posts/2017-06-25-switching-to-workbox">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2017-05-25-react-router-twitter-pinterest-style" class="no-underline"> react-router in Twitter and Pinterest style </a> </h2> <p>Modals are the de facto tool used to show notices and alerts, related content, and the pesky “Please subscribe” requests.</p> <a href="/my-blog/posts/2017-05-25-react-router-twitter-pinterest-style">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2017-01-30-browser-history-functioning-&#38;-loopback-gotcha" class="no-underline"> Browser history functioning and loopback gotcha </a> </h2> <p>According to MDN,</p> <a href="/my-blog/posts/2017-01-30-browser-history-functioning-&#38;-loopback-gotcha">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2017-01-27-animating-dots-&#38;-dashes" class="no-underline"> Animating Dots &amp; Dashes </a> </h2> <p>Using dashed-dotted-lines to create <em>sweet and simple</em> animations.</p> <a href="/my-blog/posts/2017-01-27-animating-dots-&#38;-dashes">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2017-01-02-ssh-into-private-machines" class="no-underline"> SSH Into Private Machines </a> </h2> <p>We can use SSH to access remote machines that are:</p> <a href="/my-blog/posts/2017-01-02-ssh-into-private-machines">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2016-11-22-docker-and-dc++" class="no-underline"> Docker and DC++ </a> </h2> <p>When I first started using <a href="https://www.docker.com/">Docker</a>, I was unable to use <a href="https://launchpad.net/linuxdcpp/">LinuxDC++</a> (my DC++ client).
+I kept getting this pesky error.</p> <a href="/my-blog/posts/2016-11-22-docker-and-dc++">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2016-11-10-react-angular-trends-phenomenon" class="no-underline"> Weird phenomenon in Google Trends for ReactJS and AngularJS </a> </h2> <p><a href="https://www.google.com/trends/">Google Trends</a> shows and compares how frequent particular terms were searched for in google.
+So like, it tells you how <em>popular</em> something is.</p> <a href="/my-blog/posts/2016-11-10-react-angular-trends-phenomenon">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2016-10-20-timing-controls-3" class="no-underline"> Timing Controls - Part 3 </a> </h2> <p><em>This is small one.</em></p> <a href="/my-blog/posts/2016-10-20-timing-controls-3">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2016-10-18-timing-controls-2" class="no-underline"> Timing Controls - Part 2 </a> </h2> <p>In a <a href="/my-blog/posts/2016-10-11-timing-controls">previous post</a>, we looked at some techniques to control the timings of functions (callbacks), triggered when specific events are fired. The techniques are:</p> <a href="/my-blog/posts/2016-10-18-timing-controls-2">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2016-10-11-timing-controls" class="no-underline"> Timing Controls </a> </h2> <p>JavaScript follows the Event-driven programming paradigm.
+This means that <em>actions</em> can activate <em>reactions</em>.
+We call these actions <code>events</code>, and reactions <code>callbacks</code>.
+A continuous flow of events is called an <code>event stream</code>.</p> <a href="/my-blog/posts/2016-10-11-timing-controls">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2016-10-08-flowtype-and-modern-js" class="no-underline"> Flowtype and modern JS </a> </h2> <p>As we all know, JavaScript is <em>loose typed</em> - variables are declared without a type.
+And like everything, not having explicitly mentioned data types had its pros and cons.</p> <a href="/my-blog/posts/2016-10-08-flowtype-and-modern-js">Read more</a> </div> </div>  </body></html>

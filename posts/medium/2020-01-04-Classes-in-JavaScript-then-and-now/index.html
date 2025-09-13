@@ -1,0 +1,318 @@
+<!DOCTYPE html><html lang="en" class="scroll-pt-30 scroll-smooth"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.13.7"><title>Astro Basics</title><meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback" content="animate"><script type="module" src="/my-blog/_astro/ClientRouter.astro_astro_type_script_index_0_lang.1k2cUud7.js"></script><link rel="stylesheet" href="/my-blog/_astro/2016-10-08-flowtype-and-modern-js.yeZVUhO2.css"><script type="module" src="/my-blog/_astro/page.BNYwb576.js"></script></head> <body class="dark:bg-slate-900">  <div class="mx-auto grid max-w-5xl gap-x-10 py-30" style="grid-template-columns:minmax(0,1fr) 300px"> <article class="prose max-w-none dark:prose-invert"> <header> <h1>Classes in JavaScript, then and now</h1> <time class="text-sm" datetime="2020-01-04T00:00:00.000Z"> January 4th, 2020 </time> </header> <p>And TypeScript too</p>
+<h3 id="classes-in-javascriptthen-andnow">Classes in JavaScript — then and now</h3>
+<h4 id="and-typescript-too">And TypeScript too</h4>
+<h3 id="constructors-and-prototypes">Constructors and prototypes</h3>
+<p>The earliest versions of JavaScript didn’t have classes. If we wanted to model data as <em>values-and-behaviors</em> like in any other OOP language, we would create <a href="https://javascript.info/constructor-new"><strong>constructor functions</strong></a> for creating the object with the assigned values and add behaviors to the constructor’s <strong>prototype</strong> that would serve as the “blueprint” for the model.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> Human</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">name</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">age</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">  this</span><span style="color:#E1E4E8">.name </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> name</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (age) {</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.age </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> age</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">Human</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">prototype</span><span style="color:#E1E4E8">.age </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#6A737D"> // default value</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">Human</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">prototype</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">speak</span><span style="color:#F97583"> =</span><span style="color:#F97583"> function</span><span style="color:#E1E4E8"> () {</span></span>
+<span class="line"><span style="color:#E1E4E8">  console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`Human: ${</span><span style="color:#79B8FF">this</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">name</span><span style="color:#9ECBFF">} | ${</span><span style="color:#79B8FF">this</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">age</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> me</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Human</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'Shirsh Zibbu'</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">me.</span><span style="color:#B392F0">speak</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#6A737D">//> Human: Shirsh Zibbu | 0</span></span></code></pre>
+<p><img src="/my-blog/media/2020-01-04-classes-in-javascript-then-and-now/1*K2xaiuPF908e645jvoIkoQ.png" alt=""></p>
+<p>The next we wanted was <a href="https://crockford.com/javascript/inheritance.html"><strong>classical inheritance</strong></a> and it was achieved by simply creating an instance of baseclass and connecting it with the subclass constructor &#x26;prototype.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> Person</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">name</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">age</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">address</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">  // call parent constructor</span></span>
+<span class="line"><span style="color:#E1E4E8">  Human.</span><span style="color:#B392F0">call</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">, name, age)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">  this</span><span style="color:#E1E4E8">.address </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> address</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// enable lookup delegation to `Human.prototype`</span></span>
+<span class="line"><span style="color:#79B8FF">Person</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">prototype</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Human</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// fix `instanceof` operator</span></span>
+<span class="line"><span style="color:#79B8FF">Person</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">prototype</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">constructor</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> Person</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// method override</span></span>
+<span class="line"><span style="color:#79B8FF">Person</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">prototype</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">speak</span><span style="color:#F97583"> =</span><span style="color:#F97583"> function</span><span style="color:#E1E4E8"> () {</span></span>
+<span class="line"><span style="color:#6A737D">  // call parent method</span></span>
+<span class="line"><span style="color:#79B8FF">  Human</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">prototype</span><span style="color:#E1E4E8">.speak.</span><span style="color:#B392F0">call</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`Person: ${</span><span style="color:#79B8FF">this</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">address</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// new method</span></span>
+<span class="line"><span style="color:#79B8FF">Person</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">prototype</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">greet</span><span style="color:#F97583"> =</span><span style="color:#F97583"> function</span><span style="color:#E1E4E8"> () {</span></span>
+<span class="line"><span style="color:#E1E4E8">  console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'hello world'</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> me</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Person</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'Shirsh Zibbu'</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">25</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'India'</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">me.</span><span style="color:#B392F0">speak</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#6A737D">//> Human: Shirsh Zibbu | 25</span></span>
+<span class="line"><span style="color:#6A737D">//> Person: India</span></span></code></pre>
+<p><img src="/my-blog/media/2020-01-04-classes-in-javascript-then-and-now/1*9t7jdYmyy_TER_YInVHLRA.png" alt=""></p>
+<p>This works perfectly except for a few cases where the baseclass constructors need arguments to create an instance and might not work otherwise.</p>
+<p>This problem was fixed when <code>Object.create()</code> was introduced. Instead of creating a new instance of the baseclass, we can now create a dummy object that delegates to baseclass-prototype and use it as the prototype for our subclass.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">...</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// enable lookup delegation to `Human.prototype`</span></span>
+<span class="line"><span style="color:#79B8FF">Person</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">prototype</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> Object.</span><span style="color:#B392F0">create</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">Human</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">prototype</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">...</span></span></code></pre>
+<p><img src="/my-blog/media/2020-01-04-classes-in-javascript-then-and-now/1*mWhwT9Pmx9235FzGUfX1kg.png" alt=""></p>
+<p>There is yet another way to set up the prototype for the subclass by using <code>Object.setPrototypeOf()</code> but it is not as popular. We don’t need to create a baseclass instance or even a dummy object to enable lookup delegation.</p>
+<p>We can just set the <code>[[Prototype]]</code> of subclass-protype to baseclass-protype.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">...</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// enable lookup delegation to `Human.prototype`</span></span>
+<span class="line"><span style="color:#E1E4E8">Object.</span><span style="color:#B392F0">setProtypeOf</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">Person</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">prototype</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">Human</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">prototype</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">...</span></span></code></pre>
+<h3 id="a-slight-detour-fromoop">A slight detour from OOP</h3>
+<p>It is not necessary to create constructors and prototypes to model data in a more OOP like fashion. The idea here is to create a single blueprint object that holds default values and all the methods for a “model” and create a simple function that builds new “model instances” (simple objects that delegate to the blueprint).</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> Human</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">name</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">age</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">  // compatibility with `new` operator usage</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">new</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">target</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#B392F0"> Human</span><span style="color:#E1E4E8">(name, age)</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> extensions</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> { name }</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (age) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    extensions.age </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> age</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> Object.</span><span style="color:#B392F0">assign</span><span style="color:#E1E4E8">(Object.</span><span style="color:#B392F0">create</span><span style="color:#E1E4E8">(__Human__), extensions)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// blueprint for "Human"</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> __Human__</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  age: </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#B392F0">  speak</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">    console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`Human: ${</span><span style="color:#79B8FF">this</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">name</span><span style="color:#9ECBFF">} | ${</span><span style="color:#79B8FF">this</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">age</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> Person</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">name</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">age</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">address</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">  // compatibility with `new` operator usage</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">new</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">target</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#B392F0"> Person</span><span style="color:#E1E4E8">(name, age, address)</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> Object.</span><span style="color:#B392F0">assign</span><span style="color:#E1E4E8">(Object.</span><span style="color:#B392F0">create</span><span style="color:#E1E4E8">(__Person__), </span><span style="color:#F97583">new</span><span style="color:#B392F0"> Human</span><span style="color:#E1E4E8">(name, age), {</span></span>
+<span class="line"><span style="color:#E1E4E8">    address,</span></span>
+<span class="line"><span style="color:#E1E4E8">  })</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// blueprint for "Person" class</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> __Person__</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> Object.</span><span style="color:#B392F0">assign</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#6A737D">  // enable lookup delegation to `Human.prototype`</span></span>
+<span class="line"><span style="color:#E1E4E8">  Object.</span><span style="color:#B392F0">create</span><span style="color:#E1E4E8">(__Human__),</span></span>
+<span class="line"><span style="color:#E1E4E8">  {</span></span>
+<span class="line"><span style="color:#B392F0">    speak</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">      __Human__.speak.</span><span style="color:#B392F0">call</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">      console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`Person: ${</span><span style="color:#79B8FF">this</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">address</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    },</span></span>
+<span class="line"><span style="color:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> me</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> Person</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'Shirsh Zibbu'</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">25</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'India'</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">me.</span><span style="color:#B392F0">speak</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#6A737D">//> Human: Shirsh Zibbu | 25</span></span>
+<span class="line"><span style="color:#6A737D">//> Person: India</span></span></code></pre>
+<p>This style of modeling relies only on native JavaScript constructs — objects, functions, and prototype delegation. Too bad it never caught up.</p>
+<p><img src="/my-blog/media/2020-01-04-classes-in-javascript-then-and-now/1*ZfI8O6ASl8xFOCuSAmLYAg.png" alt=""></p>
+<p>There was some movement towards this unorthodox pattern but it never became popular. Instead, we got the new ES6 class syntax.</p>
+<h3 id="es6-classsyntax">ES6 class syntax</h3>
+<p>The class syntax is the defacto way to work in OOP languages. It was only a matter of time that JavaScript received the same.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Human</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#FFAB70">  age</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> 0</span><span style="color:#6A737D"> // default value but NOT on prototype</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  constructor</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">name</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">age</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.name </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> name</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (age) {</span></span>
+<span class="line"><span style="color:#79B8FF">      this</span><span style="color:#E1E4E8">.age </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> age</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">  speak</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">    console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`Human: ${</span><span style="color:#79B8FF">this</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">name</span><span style="color:#9ECBFF">} | ${</span><span style="color:#79B8FF">this</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">age</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Person</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> Human</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  constructor</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">name</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">age</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">address</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">    super</span><span style="color:#E1E4E8">(name, age)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // can't use `this` before calling `super()`</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.address </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> address</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">  speak</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">    // call parent method</span></span>
+<span class="line"><span style="color:#79B8FF">    super</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">speak</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`Person: ${</span><span style="color:#79B8FF">this</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">address</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">  greet</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">    console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'hello world'</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> me</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Person</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'Shirsh Zibbu'</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">25</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'India'</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">me.</span><span style="color:#B392F0">speak</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#6A737D">//> Human: Shirsh Zibbu | 25</span></span>
+<span class="line"><span style="color:#6A737D">//> Person: India</span></span></code></pre>
+<p>It is important to know that all of this is just syntactic sugar on the existing system with a few differences:</p>
+<ul>
+<li>Class properties (like <code>age</code>) are assigned directly on the instance and not on its <code>[[Prototype]]</code></li>
+<li><code>CLASS.prototype</code> cannot be re-assigned, re-defined or deleted</li>
+<li>A subclass inherits static members of its baseclass</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> Human</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">name</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">age</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">  this</span><span style="color:#E1E4E8">.age </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#6A737D"> // default value but NOT on prototype</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">  this</span><span style="color:#E1E4E8">.name </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> name</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (age) {</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.age </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> age</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">Human</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">prototype</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">speak</span><span style="color:#F97583"> =</span><span style="color:#F97583"> function</span><span style="color:#E1E4E8"> () {</span></span>
+<span class="line"><span style="color:#E1E4E8">  console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`Human: ${</span><span style="color:#79B8FF">this</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">name</span><span style="color:#9ECBFF">} | ${</span><span style="color:#79B8FF">this</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">age</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// lock prototype</span></span>
+<span class="line"><span style="color:#E1E4E8">Object.</span><span style="color:#B392F0">defineProperty</span><span style="color:#E1E4E8">(Human, </span><span style="color:#9ECBFF">'prototype'</span><span style="color:#E1E4E8">, {</span></span>
+<span class="line"><span style="color:#E1E4E8">  value: </span><span style="color:#79B8FF">Human</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">prototype</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  writable: </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  enumerable: </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  configurable: </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">})</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> Person</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">name</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">age</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">address</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">  Human.</span><span style="color:#B392F0">call</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">, name, age, address)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">  // can't use `this` before calling `super()`</span></span>
+<span class="line"><span style="color:#79B8FF">  this</span><span style="color:#E1E4E8">.address </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> address</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// enable lookup delegation to `Human.prototype`</span></span>
+<span class="line"><span style="color:#79B8FF">Person</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">prototype</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> Object.</span><span style="color:#B392F0">create</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">Human</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">prototype</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// fix `instanceof` operator</span></span>
+<span class="line"><span style="color:#79B8FF">Person</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">prototype</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">constructor</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> Person</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// method override</span></span>
+<span class="line"><span style="color:#79B8FF">Person</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">prototype</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">speak</span><span style="color:#F97583"> =</span><span style="color:#F97583"> function</span><span style="color:#E1E4E8"> () {</span></span>
+<span class="line"><span style="color:#6A737D">  // call parent method</span></span>
+<span class="line"><span style="color:#79B8FF">  Human</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">prototype</span><span style="color:#E1E4E8">.speak.</span><span style="color:#B392F0">call</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`Person: ${</span><span style="color:#79B8FF">this</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">address</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">Person</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">prototype</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">greet</span><span style="color:#F97583"> =</span><span style="color:#F97583"> function</span><span style="color:#E1E4E8"> () {</span></span>
+<span class="line"><span style="color:#E1E4E8">  console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'hello world'</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">Object.</span><span style="color:#B392F0">defineProperty</span><span style="color:#E1E4E8">(Person, </span><span style="color:#9ECBFF">'prototype'</span><span style="color:#E1E4E8">, {</span></span>
+<span class="line"><span style="color:#E1E4E8">  value: </span><span style="color:#79B8FF">Person</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">prototype</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  writable: </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  enumerable: </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  configurable: </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">})</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">Object.</span><span style="color:#B392F0">setPrototypeOf</span><span style="color:#E1E4E8">(Person, Human) </span><span style="color:#6A737D">// static inheritance</span></span></code></pre>
+<p><img src="/my-blog/media/2020-01-04-classes-in-javascript-then-and-now/1*bqtlN0JMlMgiK8aY0vomqA.png" alt=""></p>
+<h3 id="static-analysis">Static analysis</h3>
+<p>Since TypeScript is a static extension of JavaScript, it doesn’t modify or remove any existing runtime behaviors but adds a few which are <em>compile-time</em> — types, interfaces, generics, abstract classes, and more.</p>
+<p>One major difference in how interfaces work in TypeScript compared to Java is that <strong>interfaces describe the structure of an instance, not a class</strong>. That is why interfaces in TypeScript can’t have static members.</p>
+<blockquote>
+<p><strong>TypeScript interfaces describe the structure of an</strong> instance**, not a class**</p>
+</blockquote>
+<p>When we create a class in TypeScript, we also get an implicit interface that describes the shape of an instance of that class (and any other object if we use it as a declaration type or as a cast/assertion).</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="ts"><code><span class="line"><span style="color:#F97583">interface</span><span style="color:#B392F0"> Animal</span><span style="color:#E1E4E8"> { </span><span style="color:#F97583">...</span><span style="color:#E1E4E8"> }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Human</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> Animal</span><span style="color:#E1E4E8"> { </span><span style="color:#F97583">...</span><span style="color:#E1E4E8"> }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// equivalent to</span></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Human</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> Human</span><span style="color:#E1E4E8">, </span><span style="color:#B392F0">Animal</span><span style="color:#E1E4E8"> { </span><span style="color:#F97583">...</span><span style="color:#E1E4E8"> }</span></span></code></pre>
+<p><img src="/my-blog/media/2020-01-04-classes-in-javascript-then-and-now/1*AgJqEZzfip1EO8_SUsqHZQ.png" alt=""></p>
+<h4 id="implements-extras">Implements extras</h4>
+<p>In cases of inheritance, the <strong>implicit interface</strong> of the subclass will also extend the <strong>combined interface</strong> of the base class.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="ts"><code><span class="line"><span style="color:#F97583">interface</span><span style="color:#B392F0"> Animal</span><span style="color:#E1E4E8"> { </span><span style="color:#F97583">...</span><span style="color:#E1E4E8"> }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Human</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> Animal</span><span style="color:#E1E4E8"> { </span><span style="color:#F97583">...</span><span style="color:#E1E4E8"> }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Person</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> Human</span><span style="color:#E1E4E8"> { </span><span style="color:#F97583">...</span><span style="color:#E1E4E8"> }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// equivalent to</span></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Human</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> Human</span><span style="color:#E1E4E8">, </span><span style="color:#B392F0">Animal</span><span style="color:#E1E4E8"> { </span><span style="color:#F97583">...</span><span style="color:#E1E4E8"> }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Person</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> Person</span><span style="color:#E1E4E8">, </span><span style="color:#B392F0">Human</span><span style="color:#E1E4E8"> { </span><span style="color:#F97583">...</span><span style="color:#E1E4E8"> }</span></span></code></pre>
+<p><img src="/my-blog/media/2020-01-04-classes-in-javascript-then-and-now/1*XKIwfr-kw52aIbBcello2g.png" alt=""></p>
+<h4 id="static-types-forclasses">Static types for classes</h4>
+<p>Even though I said that <em>interfaces describe the structure of an object and not a class</em>, we can still enforce static members on a class if we want to. But it won’t be pretty.</p>
+<p>We need to define our <code>Person</code> class using class expressions rather than declaring it. This allows us to use the <code>Developer</code> interface to describe the shape of the class itself. However, class expressions don’t get a “free” implicit interface. And to <em>add insult to injury</em>, we can’t directly instantiate our <code>Person</code> class because the interface describing its shape (i.e., <code>Developer</code>) doesn’t contain a <strong>construct signature</strong>.</p>
+<p>After fixing all these issues, here’s what we get:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="ts"><code><span class="line"><span style="color:#F97583">interface</span><span style="color:#B392F0"> Developer</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  new</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">name</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">age</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> number</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">address</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">)</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Person</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FFAB70">  langs</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">[]</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Human</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#FFAB70">  name</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FFAB70">  age</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> 0</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  constructor</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">name</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">age</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> number</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.name </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> name</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (age) {</span></span>
+<span class="line"><span style="color:#79B8FF">      this</span><span style="color:#E1E4E8">.age </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> age</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">  speak</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">    console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`Human: ${</span><span style="color:#79B8FF">this</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">name</span><span style="color:#9ECBFF">} | ${</span><span style="color:#79B8FF">this</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">age</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">interface</span><span style="color:#B392F0"> Person</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> Human</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#FFAB70">  address</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> Person</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Developer</span><span style="color:#F97583"> =</span><span style="color:#F97583"> class</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> Human</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> Person</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  static</span><span style="color:#FFAB70"> langs</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">'JavaScript'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'TypeScript'</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FFAB70">  address</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  constructor</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">name</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">age</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> number</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">address</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">    super</span><span style="color:#E1E4E8">(name, age)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.address </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> address</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">  speak</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">    console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`Person: ${</span><span style="color:#79B8FF">this</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">address</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">    super</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">speak</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> me</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Person</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'Shirsh Zibbu'</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">25</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'India'</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">me.</span><span style="color:#B392F0">speak</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">me.address</span></span>
+<span class="line"><span style="color:#6A737D">//> Person: India</span></span>
+<span class="line"><span style="color:#6A737D">//> Human: Shirsh Zibbu | 25</span></span></code></pre>
+<p>You can check everything works on <a href="https://www.typescriptlang.org/play/?ssl=1&#x26;ssc=1&#x26;pln=2&#x26;pc=22#code/JYOwLgpgTgZghgYwgAgCIQG4QDYHsAO0yA3gFDIXIgQDuyAFCHALYQBcyAzmFKAOYAaZHD7sqAV2YAjaELgATeVAidOHbrxB8AlBwAK0TrhABuUuUrY4WtVx78A2gF0zAX3MIrq5AAlJ1kgsKJlZ1ey0zIOFRZABeZAAGSMpkBGMNcQQwXChGFjENfjlRDhBJGShtQJSUsAALYE4AOhCUeNazGspgGAYRCCqyLq76xqb+uOiITuH3FPcozkI4AGt6QaiUtJAjbAgmvD56AAM-ZmsOABJiUebW12QAH2Rr2-HRV2PtGYp3BdBILBECgDFAjCBkBAAB6QEDyTi+fwQoaUBRKFS2QoRUgLbbcZCg8EcdBYPCEKCTTxwbzQ2HwxHnCHAZj4PascAIwnGaqUbhwMDABDIKw2SYOADkACk4Bg4ABlBC8fBgcVCcUAFQAnoQFUqVU5zCk0cpVGFNHxkpQ8TxMtlcq0zUUpqVyrJhIoTZjwjoeV1OOJyXlWMUBj8am9jRjJpHVGGFiklhBVutfTU8bg9gdcEdjlyQFcbg1mjHOJ9vpteQHoE1E8ny-McR50mBkKxJtQ6Hn6OK5Q0wXVkAAtYBSKTiVXIABMAFY1QBJOHAODi7SkVg15ZrVfrkukAD0e4AfATDMYOAv5Ev90eGRdkL3gP2hyOx08p9PSEA">here TypeScript playground</a>.</p>
+<h3 id="bonus">Bonus</h3>
+<p>Here’s a <em>not-so-simple</em> setup for you to admire that uses everything listed in this article and a few more things. The code for this setup is <a href="https://www.typescriptlang.org/play/#code/JYOwLgpgTgZghgYwgAgBrIN7IB4C5lwgCeyAvgFDlhEAOKAmsgLybJECM+hJpyAZKyIAmfOyEBmMpUqhIsRCgAKmcsjXIQEAO4AKAJT4AgqvU1OBYuQrlZ0eEmTKsNERZ4zwdhcgCKAHgAVAD4VdQ1tHQA6aLgoAHMAZy5iA2QAkzUAR2SiK2kbT3kHQ2QIbEgQABMEtFD1OHxNADdoPPIEAHsQBLBkQ3xlFgQAGzgEmuAAWxphiEmIcBqSjAzkHrgwYARkM2ZkMXFV9c3tlz2AcgALCGHhjuQtDqhhyvPKMLw3d-q9gFcqiAwUAQSoEGrNVrWDxyewoABCpXKC2qfQANMhGCswgAjfD-ADWIA6WhAbU63V6cPw-jhISGo3GiIqKJKUxmcwWYBqCKx6mOW2QmT2IF+t2+ag4e3gwwSEFWwgAhKIJOLkLiNL9JtjoHsAAxtSjknoEYXaPr6SiGSJmchWlyUOCRbDkR1wfJG3rY01aZBwi3kOGRTKUbFO8ihjjhyLCEORN2h7HkIA"><strong>here</strong></a> ✌</p>
+<p><img src="/my-blog/media/2020-01-04-classes-in-javascript-then-and-now/1*ceZWfQSer6REPjiN32hXrg.png" alt=""></p> <footer class="mt-20"> <nav class="flex flex-wrap gap-x-10 gap-y-2">  <div class="ms-auto"> <a href="/my-blog/posts/medium/2020-01-01-FizzBuzz-test-using-RxJS">FizzBuzz test using RxJS</a>
+&rarr;
+</div> </nav> </footer> </article> <aside id="toc" class="sticky top-32 prose self-start text-xs leading-relaxed dark:prose-invert"> <div class="mb-3 text-xs">TABLE OF CONTENTS</div> <nav> <ul class="mt-0 mb-0 list-none ps-0"> <li data-depth="3" class="mt-0 mb-0 ps-0"> <span class="py-1 -ms-px inline-block border-s border-(--tw-prose-hr) has-[a[data-active]]:border-(--tw-prose-links) hover:border-(--tw-prose-links) ps-5"> <a href="#classes-in-javascriptthen-andnow" class="font-normal text-(--tw-prose-body) inline-block px-0.5 py-px no-underline data-[active]:font-medium text-(--tw-prose-captions) hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:text-(--tw-prose-links)"> Classes in JavaScript — then and now </a> </span> <ul class="mt-0 mb-0 list-none ps-0"> <li data-depth="4" class="mt-0 mb-0 ps-0"> <span class="py-1 -ms-px inline-block border-s border-(--tw-prose-hr) has-[a[data-active]]:border-(--tw-prose-links) hover:border-(--tw-prose-links) ps-8"> <a href="#and-typescript-too" class="font-normal text-(--tw-prose-body) inline-block px-0.5 py-px no-underline data-[active]:font-medium text-(--tw-prose-captions) hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:text-(--tw-prose-links)"> And TypeScript too </a> </span>  </li> </ul> </li><li data-depth="3" class="mt-0 mb-0 ps-0"> <span class="py-1 -ms-px inline-block border-s border-(--tw-prose-hr) has-[a[data-active]]:border-(--tw-prose-links) hover:border-(--tw-prose-links) ps-5"> <a href="#constructors-and-prototypes" class="font-normal text-(--tw-prose-body) inline-block px-0.5 py-px no-underline data-[active]:font-medium text-(--tw-prose-captions) hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:text-(--tw-prose-links)"> Constructors and prototypes </a> </span>  </li><li data-depth="3" class="mt-0 mb-0 ps-0"> <span class="py-1 -ms-px inline-block border-s border-(--tw-prose-hr) has-[a[data-active]]:border-(--tw-prose-links) hover:border-(--tw-prose-links) ps-5"> <a href="#a-slight-detour-fromoop" class="font-normal text-(--tw-prose-body) inline-block px-0.5 py-px no-underline data-[active]:font-medium text-(--tw-prose-captions) hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:text-(--tw-prose-links)"> A slight detour from OOP </a> </span>  </li><li data-depth="3" class="mt-0 mb-0 ps-0"> <span class="py-1 -ms-px inline-block border-s border-(--tw-prose-hr) has-[a[data-active]]:border-(--tw-prose-links) hover:border-(--tw-prose-links) ps-5"> <a href="#es6-classsyntax" class="font-normal text-(--tw-prose-body) inline-block px-0.5 py-px no-underline data-[active]:font-medium text-(--tw-prose-captions) hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:text-(--tw-prose-links)"> ES6 class syntax </a> </span>  </li><li data-depth="3" class="mt-0 mb-0 ps-0"> <span class="py-1 -ms-px inline-block border-s border-(--tw-prose-hr) has-[a[data-active]]:border-(--tw-prose-links) hover:border-(--tw-prose-links) ps-5"> <a href="#static-analysis" class="font-normal text-(--tw-prose-body) inline-block px-0.5 py-px no-underline data-[active]:font-medium text-(--tw-prose-captions) hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:text-(--tw-prose-links)"> Static analysis </a> </span> <ul class="mt-0 mb-0 list-none ps-0"> <li data-depth="4" class="mt-0 mb-0 ps-0"> <span class="py-1 -ms-px inline-block border-s border-(--tw-prose-hr) has-[a[data-active]]:border-(--tw-prose-links) hover:border-(--tw-prose-links) ps-8"> <a href="#implements-extras" class="font-normal text-(--tw-prose-body) inline-block px-0.5 py-px no-underline data-[active]:font-medium text-(--tw-prose-captions) hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:text-(--tw-prose-links)"> Implements extras </a> </span>  </li><li data-depth="4" class="mt-0 mb-0 ps-0"> <span class="py-1 -ms-px inline-block border-s border-(--tw-prose-hr) has-[a[data-active]]:border-(--tw-prose-links) hover:border-(--tw-prose-links) ps-8"> <a href="#static-types-forclasses" class="font-normal text-(--tw-prose-body) inline-block px-0.5 py-px no-underline data-[active]:font-medium text-(--tw-prose-captions) hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:text-(--tw-prose-links)"> Static types for classes </a> </span>  </li> </ul> </li><li data-depth="3" class="mt-0 mb-0 ps-0"> <span class="py-1 -ms-px inline-block border-s border-(--tw-prose-hr) has-[a[data-active]]:border-(--tw-prose-links) hover:border-(--tw-prose-links) ps-5"> <a href="#bonus" class="font-normal text-(--tw-prose-body) inline-block px-0.5 py-px no-underline data-[active]:font-medium text-(--tw-prose-captions) hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:text-(--tw-prose-links)"> Bonus </a> </span>  </li> </ul> </nav> </aside> <script type="module">const l=Array.from(document.querySelectorAll("#toc a")),s=l.map(e=>{const n=e.getAttribute("href").replace("#",""),t=document.querySelector(`[id="${n}"]`);return t?{heading:t,link:e}:null}).filter(Boolean);let o,r;const i=()=>{const{scrollTop:e}=document.documentElement,c=s.findLast(({heading:d})=>d.offsetTop<e+160);if(!c)return;const{heading:n,link:t}=c;r!==n&&(t.dataset.active="true",o&&(delete o.dataset.active,o=void 0),r=n,o=t)};window.addEventListener("scroll",i);i();</script> </div>  </body></html>
