@@ -35,36 +35,36 @@ We control how much time to wait before activating the next callback.
 ### Implementation
 
 ```js
-const delta = 1000; // wait 1000ms before next callback
-let then = 0;
+const delta = 1000 // wait 1000ms before next callback
+let then = 0
 
 function log() {
-  console.log('foo');
+  console.log('foo')
 }
 
 function throttledLog() {
-  const now = Date.now();
+  const now = Date.now()
   if (now - then >= delta) {
-    log();
+    log()
 
-    then = now;
+    then = now
   }
 }
 
-window.onmousemove = throttledLog;
+window.onmousemove = throttledLog
 ```
 
 We can replace `delta` with `fps` and work out different code.
 
 ```js
-const fps = 60;
+const fps = 60
 
 function throttledLog() {
-  const now = Date.now();
+  const now = Date.now()
   if (1000 / (now - then) <= fps) {
-    log();
+    log()
 
-    then = now;
+    then = now
   }
 }
 ```
@@ -76,25 +76,25 @@ Initially, we say that it is safe to activate the callback.
 Once done, it is only safe to activate it again after `delta` time.
 
 ```js
-const delta = 1000; // wait 1000ms before next callback
-let safe = true;
+const delta = 1000 // wait 1000ms before next callback
+let safe = true
 
 function log() {
-  console.log('foo');
+  console.log('foo')
 }
 
 function throttledLog() {
   if (safe) {
-    log();
+    log()
 
-    safe = false;
+    safe = false
     setTimeout(() => {
-      safe = true;
-    }, delta);
+      safe = true
+    }, delta)
   }
 }
 
-window.onmousemove = throttledLog;
+window.onmousemove = throttledLog
 ```
 
 ---
@@ -112,23 +112,23 @@ Debouncing is all about delaying the callback until the last event in a group oc
 We can use `setTimeout()` to delay the callback.
 
 ```js
-const delta = 1000; // wait 1000ms before next callback
-let timeoutID = null;
+const delta = 1000 // wait 1000ms before next callback
+let timeoutID = null
 
 function log() {
-  console.log('foo');
+  console.log('foo')
 }
 
 function debouncedLog() {
-  clearTimeout(timeoutID); // reset timer
+  clearTimeout(timeoutID) // reset timer
   timeoutID = setTimeout(() => {
     // wait for some time
     // and check if event happens again
-    log();
-  }, delta);
+    log()
+  }, delta)
 }
 
-window.onkeydown = debouncedLog;
+window.onkeydown = debouncedLog
 ```
 
 ---
@@ -144,27 +144,27 @@ Just like with Throttle, we need a state variable to check whether we should act
 We also use `setTimeout()` to update the state variable.
 
 ```js
-const delta = 1000; // wait 1000ms before next callback
-let timeoutID = null;
-let safe = true;
+const delta = 1000 // wait 1000ms before next callback
+let timeoutID = null
+let safe = true
 
 function log() {
-  console.log('foo');
+  console.log('foo')
 }
 
 function immediatedLog() {
   if (safe) {
-    log();
-    safe = false;
+    log()
+    safe = false
   }
 
-  clearTimeout(timeoutID);
+  clearTimeout(timeoutID)
   timeoutID = setTimeout(() => {
-    safe = true;
-  }, delta);
+    safe = true
+  }, delta)
 }
 
-window.onkeydown = immediatedLog;
+window.onkeydown = immediatedLog
 ```
 
 ---
@@ -175,4 +175,4 @@ In this post, we have explored the most common techniques used as timing functio
 
 In the [next part], we will improve the code into higher order functions and look at the problems that might arise with these simple implementations.
 
-[next part]: {% post_url 2016-10-18-timing-controls-2 %} "Timing Controls"
+[next part]: /posts/2016-10-18-timing-controls-2

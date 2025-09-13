@@ -39,9 +39,7 @@ They are made using CSS's `border` property and it is up to the browser to decid
     border-top-style: dotted;
   }
 </style>
-<div id="demo-1">
-  Lorem ipsum dolor sit amet, consectetur adipisicing elit
-</div>
+<div id="demo-1">Lorem ipsum dolor sit amet, consectetur adipisicing elit</div>
 ```
 
 ---
@@ -87,11 +85,7 @@ They are made using CSS's `border` property and it is up to the browser to decid
 ```html
 <style>
   #demo-2 {
-    background-image: linear-gradient(
-      to right,
-      silver 50%,
-      transparent 0%
-    );
+    background-image: linear-gradient(to right, silver 50%, transparent 0%);
     background-size: 8px 4px;
     background-repeat: repeat-x;
     background-position: 0% bottom;
@@ -110,9 +104,7 @@ They are made using CSS's `border` property and it is up to the browser to decid
     }
   }
 </style>
-<div id="demo-2">
-  Lorem ipsum dolor sit amet, consectetur adipisicing elit
-</div>
+<div id="demo-2">Lorem ipsum dolor sit amet, consectetur adipisicing elit</div>
 ```
 
 ---
@@ -211,11 +203,7 @@ They are made using CSS's `border` property and it is up to the browser to decid
     right: 0;
     left: 0;
 
-    background-image: linear-gradient(
-      to right,
-      silver 50%,
-      transparent 0%
-    );
+    background-image: linear-gradient(to right, silver 50%, transparent 0%);
     background-size: 20px 4px;
     background-repeat: repeat-x;
     background-position: 0% bottom;
@@ -242,11 +230,7 @@ They are made using CSS's `border` property and it is up to the browser to decid
     right: 0;
     left: 0;
 
-    background-image: linear-gradient(
-      to right,
-      silver 50%,
-      transparent 0%
-    );
+    background-image: linear-gradient(to right, silver 50%, transparent 0%);
     background-size: 20px 4px;
     background-repeat: repeat-x;
     background-position: 0% bottom;
@@ -265,9 +249,7 @@ They are made using CSS's `border` property and it is up to the browser to decid
     }
   }
 </style>
-<div id="demo-3">
-  Lorem ipsum dolor sit amet, consectetur adipisicing elit
-</div>
+<div id="demo-3">Lorem ipsum dolor sit amet, consectetur adipisicing elit</div>
 ```
 
 ---
@@ -315,29 +297,32 @@ SVG provides fine tuned control over out dots and dashes.
   }
 </style>
 <svg xmlns="http://www.w3.org/2000/svg" id="demo-4" width="30%" height="130">
+  <line x1="0" y1="10" x2="100%" y2="10" stroke-dasharray="10" />
+  <line x1="0" y1="30" x2="100%" y2="30" stroke-dasharray="10, 10" />
+  <line x1="0" y1="50" x2="100%" y2="50" stroke-dasharray="15, 10, 5" />
   <line
-    x1="0" y1="10" x2="100%" y2="10"
+    x1="0"
+    y1="70"
+    x2="100%"
+    y2="70"
     stroke-dasharray="10"
+    stroke-dashoffset="1"
   />
   <line
-    x1="0" y1="30" x2="100%" y2="30"
-    stroke-dasharray="10, 10"
+    x1="0"
+    y1="90"
+    x2="100%"
+    y2="90"
+    stroke-dasharray="10"
+    stroke-dashoffset="4"
   />
   <line
-    x1="0" y1="50" x2="100%" y2="50"
-    stroke-dasharray="15, 10, 5"
-  />
-  <line
-    x1="0" y1="70" x2="100%" y2="70"
-    stroke-dasharray="10" stroke-dashoffset="1"
-  />
-  <line
-    x1="0" y1="90" x2="100%" y2="90"
-    stroke-dasharray="10" stroke-dashoffset="4"
-  />
-  <line
-    x1="0" y1="110" x2="100%" y2="110"
-    stroke-dasharray="10" stroke-dashoffset="7"
+    x1="0"
+    y1="110"
+    x2="100%"
+    y2="110"
+    stroke-dasharray="10"
+    stroke-dashoffset="7"
   />
 </svg>
 ```

@@ -76,7 +76,7 @@ toolbox.router.get(
 
 ---
 
-# Moving towards a better future
+## Moving towards a better future
 
 Google talks about building a new, more modular tooling library [here].
 
@@ -88,31 +88,30 @@ Workbox is also backwards compatible with `sw-precache` and `sw-toolbox` and ado
 
 Here's a list of options that I've worked out from the source.
 
-| sw-precache                                            | workbox                                             |
-| ------------------------------------------------------ | --------------------------------------------------- |
-| cacheId                                                | cacheId                                             |
-| clientsClaim                                           | clientsClaim                                        |
-| directoryIndex                                         | directoryIndex                                      |
-| dontCacheBustUrlsMatching                              | dontCacheBustUrlsMatching                           |
-| dynamicUrlToDependencies                               | dynamicUrlToDependencies <br> **templatedUrls**     |
-| handleFetch                                            | handleFetch                                         |
-| ignoreUrlParametersMatching                            | ignoreUrlParametersMatching                         |
-| maximumFileSizeToCacheInBytes                          | maximumFileSizeToCacheInBytes                       |
-| navigateFallback                                       | navigateFallback                                    |
-| navigateFallbackWhitelist                              | navigateFallbackWhitelist                           |
-| runtimeCaching                                         | runtimeCaching                                      |
-| skipWaiting                                            | skipWaiting                                         |
-| staticFileGlobs                                        | staticFileGlobs <br> **globPatterns**               |
-| importScripts                                          |                                                     |
-| logger                                                 |                                                     |
-| templateFilePath                                       |                                                     |
-| verbose                                                |                                                     |
-|                                                        | globDirectory                                       |
-|                                                        | globIgnores                                         |
-|                                                        | swDest                                              |
-|                                                        | swSrc                                               |
-| _replacePrefix <br> stripPrefix <br> stripPrefixMulti_ | _modifyUrlPrefix_                                   |
-| ------------------------------------------------------ | --------------------------------------------------- |
+| sw-precache                                            | workbox                                         |
+| ------------------------------------------------------ | ----------------------------------------------- |
+| cacheId                                                | cacheId                                         |
+| clientsClaim                                           | clientsClaim                                    |
+| directoryIndex                                         | directoryIndex                                  |
+| dontCacheBustUrlsMatching                              | dontCacheBustUrlsMatching                       |
+| dynamicUrlToDependencies                               | dynamicUrlToDependencies <br> **templatedUrls** |
+| handleFetch                                            | handleFetch                                     |
+| ignoreUrlParametersMatching                            | ignoreUrlParametersMatching                     |
+| maximumFileSizeToCacheInBytes                          | maximumFileSizeToCacheInBytes                   |
+| navigateFallback                                       | navigateFallback                                |
+| navigateFallbackWhitelist                              | navigateFallbackWhitelist                       |
+| runtimeCaching                                         | runtimeCaching                                  |
+| skipWaiting                                            | skipWaiting                                     |
+| staticFileGlobs                                        | staticFileGlobs <br> **globPatterns**           |
+| importScripts                                          |                                                 |
+| logger                                                 |                                                 |
+| templateFilePath                                       |                                                 |
+| verbose                                                |                                                 |
+|                                                        | globDirectory                                   |
+|                                                        | globIgnores                                     |
+|                                                        | swDest                                          |
+|                                                        | swSrc                                           |
+| _replacePrefix <br> stripPrefix <br> stripPrefixMulti_ | _modifyUrlPrefix_                               |
 
 ## Usage
 

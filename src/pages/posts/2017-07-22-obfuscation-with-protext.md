@@ -20,17 +20,16 @@ Tweeted by [Shiv Deepak], Engineering Manager at HackerRank and later by officia
 
 They implemented a special encoder mechanism that made this ...
 
-![](/media/2017-07-22-obfuscation-with-protext/protext off.png)
+![](/media/2017-07-22-obfuscation-with-protext/protext%20off.png)
 
 ... _render_ as this in the browser.
 
-![](/media/2017-07-22-obfuscation-with-protext/protext on.png)
+![](/media/2017-07-22-obfuscation-with-protext/protext%20on.png)
 
 If we tried to copy/paste the text, we'd end up with the gibberish.
 
-<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">Can you build a generic solution to break the HTML obfuscation on this page? - <a href="https://t.co/xcw8QlHHZg">https://t.co/xcw8QlHHZg</a> <a href="https://twitter.com/hashtag/HackerRank?src=hash">#HackerRank</a> <a href="https://twitter.com/hashtag/Hiring?src=hash">#Hiring</a> <a href="https://twitter.com/hashtag/Challenge?src=hash">#Challenge</a></p>&mdash; Shiv Deepak (@shivdeepak_) <a href="https://twitter.com/shivdeepak_/status/876317554750308352">June 18, 2017</a></blockquote>
-<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">We will be at DeveloperWeek NYC! Can solve this? - <a href="https://t.co/XjVwL23Z96">https://t.co/XjVwL23Z96</a> Get swag and more!<a href="https://twitter.com/hashtag/hackerrank?src=hash">#hackerrank</a> <a href="https://twitter.com/hashtag/code?src=hash">#code</a> <a href="https://twitter.com/hashtag/codefast?src=hash">#codefast</a></p>&mdash; HackerRank (@hackerrank) <a href="https://twitter.com/hackerrank/status/876458261536542721">June 18, 2017</a></blockquote>
-<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+<blockquote class="twitter-tweet" data-dnt="true"><p lang="en" dir="ltr">Can you build a generic solution to break the HTML obfuscation on this page? - <a href="https://t.co/xcw8QlHHZg">https://t.co/xcw8QlHHZg</a> <a href="https://twitter.com/hashtag/HackerRank?src=hash&amp;ref_src=twsrc%5Etfw">#HackerRank</a> <a href="https://twitter.com/hashtag/Hiring?src=hash&amp;ref_src=twsrc%5Etfw">#Hiring</a> <a href="https://twitter.com/hashtag/Challenge?src=hash&amp;ref_src=twsrc%5Etfw">#Challenge</a></p>&mdash; Shiv Deepak (@shivdeepakm) <a href="https://twitter.com/shivdeepakm/status/876317554750308352?ref_src=twsrc%5Etfw">June 18, 2017</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<blockquote class="twitter-tweet" data-dnt="true"><p lang="en" dir="ltr">We will be at DeveloperWeek NYC! Can solve this? - <a href="https://t.co/XjVwL23Z96">https://t.co/XjVwL23Z96</a> Get swag and more!<a href="https://twitter.com/hashtag/hackerrank?src=hash&amp;ref_src=twsrc%5Etfw">#hackerrank</a> <a href="https://twitter.com/hashtag/code?src=hash&amp;ref_src=twsrc%5Etfw">#code</a> <a href="https://twitter.com/hashtag/codefast?src=hash&amp;ref_src=twsrc%5Etfw">#codefast</a></p>&mdash; HackerRank (@hackerrank) <a href="https://twitter.com/hackerrank/status/876458261536542721?ref_src=twsrc%5Etfw">June 18, 2017</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 ---
 
@@ -99,7 +98,7 @@ The first thing that came to mind were situations where onscreen content verific
 
 For example, github's repository deletion prompt:
 
-<img src="/media/2017-07-22-obfuscation-with-protext/git confirm.png" class="center">
+![](/media/2017-07-22-obfuscation-with-protext/git%20confirm.png)
 
 ---
 

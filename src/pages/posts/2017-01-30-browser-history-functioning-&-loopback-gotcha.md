@@ -30,9 +30,9 @@ element.onclick = function handleClick(e) {
   history.pushState(
     state, // tiny session storage state
     title,
-    url // destination URL
-  );
-};
+    url, // destination URL
+  )
+}
 ```
 
 We can travel along the DLL and re-visit the pages.
@@ -44,15 +44,15 @@ We can travel along the DLL and re-visit the pages.
 
 ```js
 // move relative to the current entry
-history.go(1);
-history.go(2);
-history.go(10);
-history.go(-10);
-history.go(0);
+history.go(1)
+history.go(2)
+history.go(10)
+history.go(-10)
+history.go(0)
 
-history.back(); // equivalent to history.go(-1)
+history.back() // equivalent to history.go(-1)
 
-history.forward(); // equivalent to history.go(1)
+history.forward() // equivalent to history.go(1)
 ```
 
 ---
@@ -63,9 +63,9 @@ But these traversal methods must be invoked using JS (example: a button click).
 If we use the browser's navigation buttons, we can still intercept the action by listening for the [`popstate`] event.
 
 ```js
-window.onpopstate = e => {
-  console.log(document.location, e.state);
-};
+window.onpopstate = (e) => {
+  console.log(document.location, e.state)
+}
 ```
 
 ---
@@ -82,7 +82,7 @@ And a new branch will emerge, with the previous entries.
 
 _Note:_ Use the `BACK` and `FORWARD` buttons provided in the demo and **not** the browser's buttons.
 
-<iframe id="demo" class="demo" frameborder="0" sandbox="allow-scripts allow-same-origin" src="/gists/2017-01-30-browser-history-functioning-&-loopback-gotcha/demo.html#/home"></iframe>
+<iframe id="demo" sandbox="allow-scripts allow-same-origin" src="/gists/2017-01-30-browser-history-functioning-&-loopback-gotcha/demo.html#/home"></iframe>
 
 ---
 
@@ -109,7 +109,7 @@ Still with me? Sounds confusing? How 'bout a demo, eh?
 In the demo below, try cancelling the login prompt and then going back.
 You will find it _IMPOSSIBLE_.
 
-<iframe id="demo-bug" class="demo" frameborder="0" sandbox="allow-scripts allow-same-origin" src="/gists/2017-01-30-browser-history-functioning-&-loopback-gotcha/demo-bug.html#/home"></iframe>
+<iframe id="demo-bug" sandbox="allow-scripts allow-same-origin" src="/gists/2017-01-30-browser-history-functioning-&-loopback-gotcha/demo-bug.html#/home"></iframe>
 
 ---
 
@@ -125,7 +125,7 @@ The solution is used [here].
     }
 ```
 
-<iframe id="demo-fixed" class="demo" frameborder="0" sandbox="allow-scripts allow-same-origin" src="/gists/2017-01-30-browser-history-functioning-&-loopback-gotcha/demo-fixed.html#/home"></iframe>
+<iframe id="demo-fixed" sandbox="allow-scripts allow-same-origin" src="/gists/2017-01-30-browser-history-functioning-&-loopback-gotcha/demo-fixed.html#/home"></iframe>
 
 ---
 

@@ -24,39 +24,38 @@ The function `parse` recursively traverses up a `class`'s prototype chain and po
 ```js
 function parse(data, Class) {
   if (Class === null) {
-    return data.children;
+    return data.children
   }
 
-  const parentPrototype = Object.getPrototypeOf(Class.prototype);
-  const parentClass = parentPrototype && parentPrototype.constructor;
+  const parentPrototype = Object.getPrototypeOf(Class.prototype)
+  const parentClass = parentPrototype && parentPrototype.constructor
 
-  const prevLevel = parse(data, parentClass);
-  const node = prevLevel.find(n => n.name === Class.name);
+  const prevLevel = parse(data, parentClass)
+  const node = prevLevel.find((n) => n.name === Class.name)
 
   if (node !== undefined) {
-    return node.children;
+    return node.children
   }
 
   const newNode = {
     name: Class.name,
     children: [],
-  };
+  }
 
-  prevLevel.push(newNode);
+  prevLevel.push(newNode)
 
-  return newNode.children;
+  return newNode.children
 }
 ```
 
 This works perfect in browsers because everything that is a part of the JS execution environment, BOM, DOM and CSSOM reside under the global scope `window`.
 You can see the prototype tree below or in a
-<a href="https://zhirzh.github.io/prototype-tree/build/index.html?data=browser" target="_blank">new tab</a>.
+<a href="https://zhirzh.github.io/prototype-tree/?mode=browser" target="_blank">new tab</a>.
 
 <iframe
   class="demo"
   frameborder="0"
-  src="https://zhirzh.github.io/prototype-tree/build/index.html?data=browser&iframe"
-  style="height: 400px"
+  src="https://zhirzh.github.io/prototype-tree/?mode=browser"
 ></iframe>
 
 There are, however, some differences in the structures present in the global scope.
@@ -78,13 +77,12 @@ Things are a bit different for NodeJS.
 The default execution environment only contains the language's minimal feature set.
 All additional features are in separate modules.
 Naively running the code above results in a
-<a href="https://zhirzh.github.io/prototype-tree/build/index.html?data=node-sparse" target="_blank">sparse tree</a>.
+<a href="https://zhirzh.github.io/prototype-tree/?mode=node" target="_blank">sparse tree</a>.
 
 <iframe
   class="demo"
   frameborder="0"
-  src="https://zhirzh.github.io/prototype-tree/build/index.html?data=node-sparse&iframe"
-  style="height: 400px"
+  src="https://zhirzh.github.io/prototype-tree/?mode=node"
 ></iframe>
 
 If we want to _look_ at a module's structures, we must import the module and traverse it.
@@ -95,28 +93,28 @@ When polluting the global scope, we need to be wary of name clashes and overwrit
 This can be avoided by adding the module name to the structure name, i.e., scoping it.
 
 ```js
-const modNames = ['assert', 'async_hooks', ...'vm', 'zlib'];
+const modNames = ['assert', 'async_hooks', ...'vm', 'zlib']
 
-modNames.forEach(modName => {
-  const mod = require(modName);
+modNames.forEach((modName) => {
+  const mod = require(modName)
 
   Object.getOwnPropertyNames(mod)
-    .filter(propName => /[A-Z]/.test(propName[0]))
-    .forEach(propName => {
-      const prop = mod[propName];
+    .filter((propName) => /[A-Z]/.test(propName[0]))
+    .forEach((propName) => {
+      const prop = mod[propName]
 
       if (typeof prop.name === 'string' && prop.name.length > 0) {
-        prop.scopedName = prop.name + '[' + modName + ']';
+        prop.scopedName = prop.name + '[' + modName + ']'
       }
 
-      const scopedPropName = propName + '[' + modName + ']';
-      global[scopedPropName] = prop;
-    });
-});
+      const scopedPropName = propName + '[' + modName + ']'
+      global[scopedPropName] = prop
+    })
+})
 ```
 
 After adding the code above, we get the
-<a href="https://zhirzh.github.io/prototype-tree/build/index.html?data=node" target="_blank">full tree</a>.
+<a href="https://zhirzh.github.io/prototype-tree/?mode=node" target="_blank">full tree</a>.
 
 Notice how the class `Server` is present at multiple branches and levels in the tree.
 Without scoping the class names, `tls` would've overwritten `http` server node.
@@ -124,8 +122,7 @@ Without scoping the class names, `tls` would've overwritten `http` server node.
 <iframe
   class="demo"
   frameborder="0"
-  src="https://zhirzh.github.io/prototype-tree/build/index.html?data=node&iframe"
-  style="height: 400px"
+  src="https://zhirzh.github.io/prototype-tree/?mode=node"
 ></iframe>
 
 ---
@@ -141,39 +138,38 @@ By delegating to orphans, we can write classes that are free of any delegation b
 This is great for someone who wants to create [interfaces] or [abstract classes], since
 
 ```js
-const orphan = Object.create(null);
-orphan.foo = 111;
+const orphan = Object.create(null)
+orphan.foo = 111
 
-console.log(orphan);
+console.log(orphan)
 // { foo: 111 }
 
-console.log(Object.getPrototypeOf(orphan));
+console.log(Object.getPrototypeOf(orphan))
 // null
 
-const obj = Object.create(orphan);
-obj.bar = 222;
+const obj = Object.create(orphan)
+obj.bar = 222
 
-console.log(obj);
+console.log(obj)
 // { bar: 222 }
 
-console.log(Object.getPrototypeOf(obj));
+console.log(Object.getPrototypeOf(obj))
 // { foo: 111 }  <---  orphan
 
 class Animal {}
-Object.setPrototypeOf(Animal.prototype, orphan);
+Object.setPrototypeOf(Animal.prototype, orphan)
 
 class Human extends Animal {}
 
 function Bacteria() {}
-Object.setPrototypeOf(Bacteria.prototype, obj);
+Object.setPrototypeOf(Bacteria.prototype, obj)
 // Bacteria.prototype = Object.create(obj);  <---  also works
 ```
 
 <iframe
   class="demo"
   frameborder="0"
-  src="https://zhirzh.github.io/prototype-tree/build/index.html?data=orphan&iframe"
-  style="height: 400px"
+  src="https://zhirzh.github.io/prototype-tree/?mode=orphan"
 ></iframe>
 
 **Note**: You must **never** use dunder proto (`__proto__`).
@@ -184,12 +180,12 @@ Instead, when working with `[[Prototype]]`, use:
 - and [`Object.setPrototypeOf()`] for writing
 
 ```js
-const foo = Object.create(null);
+const foo = Object.create(null)
 
-console.log(foo.__proto__);
+console.log(foo.__proto__)
 // undefined  <---  should be `null`
 
-console.log(Object.getPrototypeOf(foo));
+console.log(Object.getPrototypeOf(foo))
 // null  <---  this is correct
 ```
 
@@ -218,12 +214,11 @@ Every WebAPI comes with its structures and each one of them has its class.
 You can further explore the graphs or even plot your own.
 The code and example links are below:
 
-- Code: [gists/2017-12-06-prototype-tree](https://github.com/zhirzh/zhirzh.github.io/tree/master/gists/2017-12-06-prototype-tree/)
+- Code: [zhirzh/prototype-tree]
 - Demos:
-  - [Browser](https://zhirzh.github.io/prototype-tree/build/index.html?data=browser)
-  - [Node (sparse)](https://zhirzh.github.io/prototype-tree/build/index.html?data=node-sparse)
-  - [Node](https://zhirzh.github.io/prototype-tree/build/index.html?data=node)
-  - [Orphan](https://zhirzh.github.io/prototype-tree/build/index.html?data=orphan)
+  - [Browser]
+  - [Node]
+  - [Orphan]
 
 [dunder proto]: http://2ality.com/2012/10/dunder.html
 [`object` class]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
@@ -237,3 +232,7 @@ The code and example links are below:
 [bluetooth]: https://developer.mozilla.org/docs/Web/API/Web_Bluetooth_API
 [credential]: https://developer.mozilla.org/docs/Web/API/Credential_Management_API
 [mediakeys]: https://developer.mozilla.org/docs/Web/API/MediaKeys
+[zhirzh/prototype-tree]: https://github.com/zhirzh/prototype-tree
+[browser]: https://zhirzh.github.io/prototype-tree/?mode=browser
+[node]: https://zhirzh.github.io/prototype-tree/?mode=node
+[orphan]: https://zhirzh.github.io/prototype-tree/?mode=orphan

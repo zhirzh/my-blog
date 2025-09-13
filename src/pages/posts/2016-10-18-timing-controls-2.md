@@ -17,21 +17,21 @@ In this post, we will see how those techniques can be implemented as a generic A
 We will work with the Debounce implementation:
 
 ```js
-const delta = 1000;
-let timeoutID = null;
+const delta = 1000
+let timeoutID = null
 
 function foo() {
-  console.log('bar');
+  console.log('bar')
 }
 
 function debouncedFoo() {
-  clearTimeout(timeoutID);
+  clearTimeout(timeoutID)
   timeoutID = setTimeout(() => {
-    foo();
-  }, delta);
+    foo()
+  }, delta)
 }
 
-window.onkeydown = debouncedFoo;
+window.onkeydown = debouncedFoo
 ```
 
 There are few problems with this implementation.
@@ -49,7 +49,7 @@ function foo(a, b, c) {
 
 function debouncedFoo(x, y, z) {
   // ...
-  foo(x, y, z);
+  foo(x, y, z)
   // ...
 }
 ```
@@ -68,7 +68,7 @@ function foo(a, b, c) {
 }
 
 function debouncedFoo(...args) {
-  foo.apply(null, args);
+  foo.apply(null, args)
   // ...
 }
 ```
@@ -80,27 +80,27 @@ It's better if the callback and the timing can act separately.
 We can achieve this by using Higher order functions.
 
 ```js
-const delta = 1000;
+const delta = 1000
 
 function log(e) {
-  console.log(e);
+  console.log(e)
 }
 
 function debounce(fn, delta) {
-  let timeoutID = null;
+  let timeoutID = null
 
   return (...args) => {
-    clearTimeout(timeoutID);
+    clearTimeout(timeoutID)
 
-    const args = arguments;
+    const args = arguments
     timeoutID = setTimeout(() => {
-      fn.apply(null, args);
-    }, delta);
-  };
+      fn.apply(null, args)
+    }, delta)
+  }
 }
 
-const debouncedLog = debounce(log, delta);
-window.onkeydown = debouncedLog;
+const debouncedLog = debounce(log, delta)
+window.onkeydown = debouncedLog
 ```
 
 ### 4. Preserve context
@@ -116,7 +116,7 @@ Therefore, it must be provided externally.
 
 function debounce(fn, delta, context) {
   // ...
-  fn.apply(context, args);
+  fn.apply(context, args)
   // ...
 }
 ```
@@ -137,16 +137,16 @@ Here's a demo ...
 
 ```js
 function debounce(fn, delta, context) {
-  let timeoutID = null;
+  let timeoutID = null
 
   return (...args) => {
-    clearTimeout(timeoutID);
+    clearTimeout(timeoutID)
 
-    const args = arguments;
+    const args = arguments
     timeoutID = setTimeout(() => {
-      fn.apply(context, args);
-    }, delta);
-  };
+      fn.apply(context, args)
+    }, delta)
+  }
 }
 ```
 
@@ -154,22 +154,22 @@ function debounce(fn, delta, context) {
 
 ```js
 function immediate(fn, delta, context) {
-  let timeoutID = null;
-  const safe = true;
+  let timeoutID = null
+  const safe = true
 
   return (...args) => {
-    const args = arguments;
+    const args = arguments
 
     if (safe) {
-      fn.call(context, args);
-      safe = false;
+      fn.call(context, args)
+      safe = false
     }
 
-    clearTimeout(timeoutID);
+    clearTimeout(timeoutID)
     timeoutID = setTimeout(() => {
-      safe = true;
-    }, delta);
-  };
+      safe = true
+    }, delta)
+  }
 }
 ```
 
@@ -177,20 +177,20 @@ function immediate(fn, delta, context) {
 
 ```js
 function throttle(fn, delta, context) {
-  const safe = true;
+  const safe = true
 
   return (...args) => {
-    const args = arguments;
+    const args = arguments
 
     if (safe) {
-      fn.call(context, args);
+      fn.call(context, args)
 
-      safe = false;
+      safe = false
       setTimeout(() => {
-        safe = true;
-      }, delta);
+        safe = true
+      }, delta)
     }
-  };
+  }
 }
 ```
 
@@ -205,9 +205,8 @@ In the [final post], we will see an implementation of Throttle that works well w
 <p data-height="296" data-theme-id="0" data-slug-hash="MEEXWL" data-default-tab="js,result" data-user="zhirzh" data-embed-version="2" data-pen-title="Timing Controls" class="codepen">See the Pen <a href="https://codepen.io/zhirzh/pen/MEEXWL/">Timing Controls</a> by Shirsh Zibbu (<a href="https://codepen.io/zhirzh">@zhirzh</a>) on <a href="https://codepen.io">CodePen</a>.</p>
 <script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
 
-[`.apply()`]: (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/apply)
-
-[previous post]: {% post_url 2016-10-11-timing-controls %}
+[`.apply()`]: (https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Function/apply)
+[previous post]: /posts/2016-10-11-timing-controls
 [higher order functions]: https://en.wikipedia.org/wiki/Higher-order_function
 [`arguments` object]: https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Functions/arguments
-[final post]: {% post_url 2016-10-20-timing-controls-3 %}
+[final post]: /posts/2016-10-20-timing-controls-3

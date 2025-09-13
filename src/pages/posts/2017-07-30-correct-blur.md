@@ -15,15 +15,7 @@ But the same adjustments can hinder photo editing processes.
 
 Here's the full explanation by [Henry Reich (minutephysics)].
 
-<div style='position: relative; width: 100%; height: 0px; padding-bottom: 60%; margin: 50px 0;'>
-	<iframe
-	  src="https://www.youtube.com/embed/LKnqECcg6Gw?rel=0"
-	  frameborder="0"
-	  allowfullscreen
-	  style="width: 100%; height: auto;"
-	  style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%"
-	></iframe>
-</div>
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/LKnqECcg6Gw?si=uxDv1NdkDKIqt1qa" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 The gist of the process is to take square-roots of the raw pixels when saving the file and when displaying the stored files, square the stored values (since they were rooted initially).
 

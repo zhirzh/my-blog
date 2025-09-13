@@ -18,10 +18,10 @@ But that's just the general way of working things out.
 ```js
 function render() {
   // do something
-  window.requestAnimationFrame(render);
+  window.requestAnimationFrame(render)
 }
 
-window.requestAnimationFrame(render);
+window.requestAnimationFrame(render)
 ```
 
 ---
@@ -42,18 +42,18 @@ We can use `requestAnimationFrame` as an alternative to `setTimeout` for our Thr
 ```js
 function throttle(fn, delta, context) {
   return (...args) => {
-    let then = 0;
+    let then = 0
 
     function repeat(now) {
-      requestAnimationFrame(repeat);
+      requestAnimationFrame(repeat)
       if (now - then >= delta) {
-        then = now;
-        fn.apply(context, args);
+        then = now
+        fn.apply(context, args)
       }
     }
 
-    requestAnimationFrame(repeat);
-  };
+    requestAnimationFrame(repeat)
+  }
 }
 ```
 
@@ -62,8 +62,8 @@ Throttle with `requestAnimationFrame`.
 
 The code is available [here].
 
-[previous post]: {% post_url 2016-10-18-timing-controls-2 %} "Timing Controls - Part 2"
-[another post]: {% post_url 2016-10-11-timing-controls %} "Timing Controls"
-[`requestAnimationFrame`]: https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
-[high resolution timestamp]: https://developer.mozilla.org/en-US/docs/Web/API/DOMHighResTimeStamp
+[previous post]: /posts/2016-10-18-timing-controls-2
+[another post]: /posts/2016-10-11-timing-controls
+[`requestAnimationFrame`]: https://developer.mozilla.org/docs/Web/API/window/requestAnimationFrame
+[high resolution timestamp]: https://developer.mozilla.org/docs/Web/API/DOMHighResTimeStamp
 [here]: https://codepen.io/zhirzh/pen/gWWKeE?editors=0011

@@ -1,2 +1,14 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
+
+.prose iframe {
+   @apply my-10 h-[400px] max-h-[50vh] w-full rounded-md bg-white;
+}
+
+.prose img {
+   @apply rounded-md;
+}
+
+.prose video {
+   @apply my-10 h-[400px] max-h-[50vh] w-full rounded-md bg-black;
+}

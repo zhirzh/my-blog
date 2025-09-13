@@ -55,22 +55,22 @@ done
 ```js
 // aggregate.js
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('fs')
+const path = require('path')
 
-const rawDirPath = path.join(__dirname, 'raw');
-const allDoodlesPath = path.join(__dirname, 'doodles.all.json');
+const rawDirPath = path.join(__dirname, 'raw')
+const allDoodlesPath = path.join(__dirname, 'doodles.all.json')
 
 const allDoodles = fs
   .readdirSync(rawDirPath)
   .reduce((_allDoodles, fileName) => {
-    const filePath = path.join(rawDirPath, fileName);
-    const fileDoodles = JSON.parse(fs.readFileSync(filePath));
+    const filePath = path.join(rawDirPath, fileName)
+    const fileDoodles = JSON.parse(fs.readFileSync(filePath))
 
-    return _allDoodles.concat(fileDoodles);
-  }, []);
+    return _allDoodles.concat(fileDoodles)
+  }, [])
 
-fs.writeFileSync(allDoodlesPath, JSON.stringify(allDoodles));
+fs.writeFileSync(allDoodlesPath, JSON.stringify(allDoodles))
 ```
 
 If everything goes well, you'll end up with the following files.
@@ -104,20 +104,20 @@ Before we can begin the cleaning process, we need to understand the structure of
 ```js
 // structure.js
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('fs')
+const path = require('path')
 
-const allDoodlesPath = path.join(__dirname, 'doodles.all.json');
-const allDoodles = require(allDoodlesPath);
+const allDoodlesPath = path.join(__dirname, 'doodles.all.json')
+const allDoodles = require(allDoodlesPath)
 
-const keys = {};
-allDoodles.forEach(doodle => {
-  Object.keys(doodle).forEach(k => {
-    keys[k] = doodle[k].constructor;
-  });
-});
+const keys = {}
+allDoodles.forEach((doodle) => {
+  Object.keys(doodle).forEach((k) => {
+    keys[k] = doodle[k].constructor
+  })
+})
 
-console.log(keys);
+console.log(keys)
 ```
 
 This gives us the following list.
@@ -200,76 +200,76 @@ There are 3 steps:
 // normalise.js
 
 // step 1
-const uniqueDoodles = {};
-const uniqueCountriesSet = new Set();
-const uniqueTagsSet = new Set();
+const uniqueDoodles = {}
+const uniqueCountriesSet = new Set()
+const uniqueTagsSet = new Set()
 
-allDoodles.forEach(doodle => {
-  doodle._id = generateDoodleHash(doodle);
+allDoodles.forEach((doodle) => {
+  doodle._id = generateDoodleHash(doodle)
 
-  uniqueDoodles[doodle._id] = doodle;
+  uniqueDoodles[doodle._id] = doodle
 
-  doodle.countries.forEach(country => {
-    country = country.trim().toLowerCase();
+  doodle.countries.forEach((country) => {
+    country = country.trim().toLowerCase()
 
-    uniqueCountriesSet.add(country);
-  });
+    uniqueCountriesSet.add(country)
+  })
 
-  doodle.tags.forEach(tag => {
-    tag = tag.trim().toLowerCase();
+  doodle.tags.forEach((tag) => {
+    tag = tag.trim().toLowerCase()
 
-    uniqueTagsSet.add(tag);
-  });
-});
+    uniqueTagsSet.add(tag)
+  })
+})
 
 // step 2
-const uniqueCountries = Array.from(uniqueCountriesSet);
-const uniqueTags = Array.from(uniqueTagsSet);
+const uniqueCountries = Array.from(uniqueCountriesSet)
+const uniqueTags = Array.from(uniqueTagsSet)
 
-allDoodles.forEach(doodle => {
+allDoodles.forEach((doodle) => {
   if (doodle.next_doodle !== null) {
-    const nextDoodle = doodle.next_doodle;
-    const nextDoodleHash = generateDoodleHash(nextDoodle);
+    const nextDoodle = doodle.next_doodle
+    const nextDoodleHash = generateDoodleHash(nextDoodle)
 
-    doodle.next_doodle = nextDoodleHash;
+    doodle.next_doodle = nextDoodleHash
   }
 
   if (doodle.prev_doodle !== null) {
-    const prevDoodle = doodle.prev_doodle;
-    const prevDoodleHash = generateDoodleHash(prevDoodle);
+    const prevDoodle = doodle.prev_doodle
+    const prevDoodleHash = generateDoodleHash(prevDoodle)
 
-    doodle.prev_doodle = prevDoodleHash;
+    doodle.prev_doodle = prevDoodleHash
   }
 
-  doodle.related_doodles = doodle.related_doodles.map(relatedDoodle => {
-    const relatedDoodleHash = generateDoodleHash(relatedDoodle);
+  doodle.related_doodles = doodle.related_doodles.map((relatedDoodle) => {
+    const relatedDoodleHash = generateDoodleHash(relatedDoodle)
 
-    return relatedDoodleHash;
-  });
+    return relatedDoodleHash
+  })
 
-  doodle.history_doodles = doodle.history_doodles.map(historyDoodle => {
-    const historyDoodleHash = generateDoodleHash(historyDoodle);
+  doodle.history_doodles = doodle.history_doodles.map((historyDoodle) => {
+    const historyDoodleHash = generateDoodleHash(historyDoodle)
 
-    return historyDoodleHash;
-  });
+    return historyDoodleHash
+  })
 
-  doodle.countries = doodle.countries.map(country =>
-    uniqueCountries.indexOf(country.trim().toLowerCase())
-  );
+  doodle.countries = doodle.countries.map((country) =>
+    uniqueCountries.indexOf(country.trim().toLowerCase()),
+  )
 
-  doodle.tags = doodle.tags.map(tag =>
-    uniqueTags.indexOf(tag.trim().toLowerCase())
-  );
-});
+  doodle.tags = doodle.tags.map((tag) =>
+    uniqueTags.indexOf(tag.trim().toLowerCase()),
+  )
+})
 
 // step 3
 function writeJSON(filepath, json, pretty = false) {
-  fs.writeFileSync(filepath, JSON.stringify(json, null, pretty ? 2 : 0));
+  fs.writeFileSync(filepath, JSON.stringify(json, null, pretty ? 2 : 0))
 }
 
-writeJSON('doodles.all.norm.json', allDoodles);
-writeJSON('countries.json', uniqueCountries);
-writeJSON('tags.json', uniqueTags);
+writeJSON('doodles.all.norm.json', allDoodles)
+writeJSON('countries.json', uniqueCountries)
+writeJSON('tags.json', uniqueTags)
 ```
 
 We can also apply the same process to other properties, such as the different types of URLs.
@@ -301,40 +301,40 @@ const linkTypes = [
   'hires_url',
   'standalone_html',
   'url',
-];
+]
 
 const urlPrefixes = [
   'lh3.googleusercontent.com',
   'www.google.com/logos',
   'www.google.com/logos/doodles',
-];
+]
 
-allDoodles.forEach(doodle => {
-  linkTypes.forEach(linkType => {
-    const link = doodle[linkType];
+allDoodles.forEach((doodle) => {
+  linkTypes.forEach((linkType) => {
+    const link = doodle[linkType]
 
     switch (true) {
       case link.startsWith('https://lh3.googleusercontent.com'):
-        doodle[linkType] = link.replace('https://lh3.googleusercontent.com', 0);
-        break;
+        doodle[linkType] = link.replace('https://lh3.googleusercontent.com', 0)
+        break
 
       case link.startsWith('//www.google.com/logos'):
-        doodle[linkType] = link.replace('//www.google.com/logos', 1);
-        break;
+        doodle[linkType] = link.replace('//www.google.com/logos', 1)
+        break
 
       case link.startsWith('/logos'):
-        doodle[linkType] = link.replace('/logos', 1);
-        break;
+        doodle[linkType] = link.replace('/logos', 1)
+        break
 
       case link.startsWith('//www.google.com/logos/doodles'):
-        doodle[linkType] = link.replace('//www.google.com/logos/doodles', 2);
-        break;
+        doodle[linkType] = link.replace('//www.google.com/logos/doodles', 2)
+        break
     }
-  });
-});
+  })
+})
 
-writeJSON('doodles.all.norm.json', allDoodles);
-writeJSON('urls.json', urlPrefixes);
+writeJSON('doodles.all.norm.json', allDoodles)
+writeJSON('urls.json', urlPrefixes)
 ```
 
 ### Measuring performance
@@ -409,12 +409,14 @@ const schema = [
   'url',
 
   '_id', // unique ID for each doodle
-];
+]
 
-const cleanDoodles = allDoodles.map(doodle => schema.map(key => doodle[key]));
+const cleanDoodles = allDoodles.map((doodle) =>
+  schema.map((key) => doodle[key]),
+)
 
-writeJSON('doodles.clean.json', cleanDoodles);
-writeJSON('schema.json', schema);
+writeJSON('doodles.clean.json', cleanDoodles)
+writeJSON('schema.json', schema)
 ```
 
 ### Measuring performance
@@ -457,7 +459,7 @@ writeJSON('meta.json', {
   countries: uniqueCountries,
   tags: uniqueTags,
   urls: urlPrefixes,
-});
+})
 
 // 12K
 ```

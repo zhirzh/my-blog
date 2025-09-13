@@ -27,9 +27,9 @@ The key component in using `MediaRecorder` is having access to a MediaStream.
 The early uses of MediaStreams came with the use of `getUserMedia()` method to gain access to local media devices.
 
 ```js
-navigator.mediaDevices.getUserMedia().then(stream => {
-  console.log('Captured MediaStream:', stream);
-});
+navigator.mediaDevices.getUserMedia().then((stream) => {
+  console.log('Captured MediaStream:', stream)
+})
 ```
 
 ### Canvas
@@ -42,10 +42,10 @@ We can supply an optional argument that controls the number of frames recorded p
 
 ```js
 // frames recorded only on re-renders
-const stream = canvas.captureStream();
+const stream = canvas.captureStream()
 
 // 30 frames recorded per second
-const stream = canvas.captureStream(30);
+const stream = canvas.captureStream(30)
 ```
 
 **Note:** To stream returned by `canvas.captureStream()` is of type [`CanvasCaptureMediaStream`] and not `MediaStream`.
@@ -80,46 +80,46 @@ Here's a short snippet that highlights all the key parts.
 // Get a MediaStream object to record
 // and pass it to MediaRecorder constructor
 // to create a MediaRecorder instance `recorder`
-const stream = mediaElement.captureStream();
-const recorder = new MediaRecorder(stream);
+const stream = mediaElement.captureStream()
+const recorder = new MediaRecorder(stream)
 
 // When recording starts, the captured frames are emitted
 // as `dataavailable` events on the `recorder`.
 // These captured "chunks" can be collected in an array.
-const allChunks = [];
-recorder.ondataavailable = e => {
-  allChunks.push(e.data);
-};
+const allChunks = []
+recorder.ondataavailable = (e) => {
+  allChunks.push(e.data)
+}
 
 // Start recording
-recorder.start();
+recorder.start()
 
 // We can pause capturing media and resume again later
 // to deal with irregular media playback
 // (likely due to user interactions or buffering)
-recorder.pause();
-recorder.resume();
+recorder.pause()
+recorder.resume()
 
 // When we're done, we can stop recording.
 // This ensures that no more media chunks are captured,
 // even if media playback continues.
-recorder.stop();
+recorder.stop()
 
 // We can now join all the chunks
 // into a single "blob" ...
-const fullBlob = new Blob(allChunks);
+const fullBlob = new Blob(allChunks)
 
 // ... which we can download using HTML5 `download` attribute on <a />
-const link = document.createElement('a');
-link.style.display = 'none';
+const link = document.createElement('a')
+link.style.display = 'none'
 
-const downloadUrl = window.URL.createObjectURL(fullBlob);
-link.href = downloadUrl;
-link.download = 'media.webm';
+const downloadUrl = window.URL.createObjectURL(fullBlob)
+link.href = downloadUrl
+link.download = 'media.webm'
 
-document.body.appendChild(link);
-link.click();
-link.remove();
+document.body.appendChild(link)
+link.click()
+link.remove()
 ```
 
 ---
@@ -154,8 +154,8 @@ const recorder = new MediaRecorder(stream, {
 To check if a codec is supported, use [`MediaRecorder.isTypeSupported()`].
 
 ```js
-MediaRecorder.isTypeSupported('video/webm'); // true
-MediaRecorder.isTypeSupported('video/mp4'); // false
+MediaRecorder.isTypeSupported('video/webm') // true
+MediaRecorder.isTypeSupported('video/mp4') // false
 ```
 
 At the time of writing, the supported codecs are:
@@ -213,45 +213,45 @@ For capturing video stream, we can render a `<video />` element onto a `<canvas 
 // audio polyfill
 
 function polyfillAudio(mediaElement) {
-  const audioCtx = new AudioContext();
+  const audioCtx = new AudioContext()
 
   // create a source node and a stream destination node
-  const source = audioCtx.createMediaElementSource(mediaElement);
-  const destination = audioCtx.createMediaStreamDestination();
+  const source = audioCtx.createMediaElementSource(mediaElement)
+  const destination = audioCtx.createMediaStreamDestination()
 
   // Connect the source node to the stream destination node
   // to push audio content into the stream
-  source.connect(destination);
+  source.connect(destination)
 
   // Connect the source node to the audio context's destination node
   // so the playback can still deliver audio
-  source.connect(audioCtx.destination);
+  source.connect(audioCtx.destination)
 
-  const audioStream = destination.stream;
+  const audioStream = destination.stream
 
-  return audioStream;
+  return audioStream
 }
 
 // video polyfill
 
 function polyfillVideo(mediaElement) {
   // Create a canvas element
-  const canvas = document.createElement('canvas');
+  const canvas = document.createElement('canvas')
 
   // Start rendering video frames onto the canvas
-  renderVideoFrame(canvas, videoElement);
+  renderVideoFrame(canvas, videoElement)
 
-  const videoStream = canvas.captureStream(60);
+  const videoStream = canvas.captureStream(60)
 
-  return videoStream;
+  return videoStream
 }
 
 function renderVideoFrame(canvas, videoElement) {
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d')
 
-  ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+  ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height)
 
-  setTimeout(() => renderVideoFrame(canvas, videoElement));
+  setTimeout(() => renderVideoFrame(canvas, videoElement))
 }
 ```
 
@@ -261,7 +261,7 @@ Now we need to do combine the 2 streams and _voila!_
 const stream = new MediaStream([
   ...audioStream.getTracks(),
   ...videoStream.getTracks(),
-]);
+])
 ```
 
 ---

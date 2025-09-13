@@ -12,21 +12,21 @@ But that can also be seen as a disadvantage.
 
 <!-- preview -->
 
-### The Problem
+## The Problem
 
 Let's work out an example.
 Suppose there is a function that must only be passed boolean arguments (`true` and `false`), we need to manually check if the arguments are booleans and were not coerced into.
 
 ```js
-const foo = true;
-console.log(typeof foo); // boolean
-console.log(foo.constructor); // Boolean
-console.log(foo instanceof Boolean); // false
+const foo = true
+console.log(typeof foo) // boolean
+console.log(foo.constructor) // Boolean
+console.log(foo instanceof Boolean) // false
 
-const bar = new Boolean(true);
-console.log(typeof bar); // object
-console.log(bar.constructor); // Boolean
-console.log(bar instanceof Boolean); // true
+const bar = new Boolean(true)
+console.log(typeof bar) // object
+console.log(bar.constructor) // Boolean
+console.log(bar instanceof Boolean) // true
 ```
 
 As we can see, we need to check if the passed argument is either a primitive boolean or an instance of class Boolean.
@@ -36,7 +36,7 @@ This is the heart of the problem - type safety.
 We are lucky that in most scenarios, there isn't a need to do this.
 But in larger, more complex softwares, type safety is a must.
 
-### The Solution
+## The Solution
 
 Solution is pretty simple - make JS a strongly typed language.
 But that would require rewriting the whole JS ecosystem, and no one in their right minds would want to do that.
@@ -61,8 +61,8 @@ Here's a flow example:
 
 ```js
 // @flow
-const foo: string = 'hello world';
-foo = 123;
+const foo: string = 'hello world'
+foo = 123
 ```
 
 In the example above, flow will point out the obvious error of assigning a `number` value to a `string` type variable.
@@ -74,9 +74,9 @@ And even without type annotations, it can figure out some problems in our code.
 ```js
 // @flow
 function foo(x) {
-  return x * 10;
+  return x * 10
 }
-foo('Hello, world!');
+foo('Hello, world!')
 ```
 
 Here, flow understands that the operation performed and the data type provided are incompatible and so, will produce error.
@@ -96,45 +96,45 @@ One can easily set up a webpack-babel based workflow, thanks to all the resource
 To add flow to the mix, I have written a webpack plugin that will do the heavy lifting for us - [flow-babel-webpack-plugin].
 As you can judge by the name, it is meant to glue together flow, babel and webpack.
 
-### Usage
+## Usage
 
-#### 1. Install dependencies
+### Install dependencies
 
 ```sh
-  # Install FBWP
-  npm i -D flow-babel-webpack-plugin
+# Install FBWP
+npm i -D flow-babel-webpack-plugin
 ```
 
-#### 2. Setup babel and flow
+### Setup babel and flow
 
 ```sh
-  # setup .flowconfig
-  ./node_modules/.bin/flow init  or flow init
+# setup .flowconfig
+./node_modules/.bin/flow init  or flow init
 
-  # .babelrc file
-  {
+# .babelrc file
+{
+  ...
+  "plugins" : [
     ...
-    "plugins" : [
-      ...
-      "transform-flow-comments"
-    ]
-  }
+    "transform-flow-comments"
+  ]
+}
 ```
 
-#### 3. Setup webpack config
+### Setup webpack config
 
 ```js
-  // webpack.config.js file
+// webpack.config.js file
 
-  const FlowBabelWebpackPlugin = require('flow-babel-webpack-plugin');
+const FlowBabelWebpackPlugin = require('flow-babel-webpack-plugin');
 
-  module.exports = {
+module.exports = {
+  ...
+  plugins: [
     ...
-    plugins: [
-      ...
-      new FlowBabelWebpackPlugin(),
-    ],
-  }
+    new FlowBabelWebpackPlugin(),
+  ],
+}
 ```
 
 And that's it!

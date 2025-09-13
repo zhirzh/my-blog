@@ -34,12 +34,11 @@ The dummy is populated with past tweets.
 
 The main content can be accessed with `$('.PermalinkOverlay')`.
 
-```react
+```jsx
 <Switch location={isModal ? this.previousLocation : location}>
   // ...
-
   <Route
-    path="/twitter"
+    path='/twitter'
     render={() => (
       <div>
         {isModal ? null : <Container />}
@@ -62,16 +61,15 @@ It has extra features, such as: like, share, bookmark, etc.
 
 You can inspect the common components on either page by accessing it from the console using `$('.Closeup.Module.flex')`.
 
-```react
+```jsx
 <Switch location={isModal ? this.previousLocation : location}>
   // ...
-
   <Route
-    path="/pinterest"
+    path='/pinterest'
     render={() => {
-      const Component = isModal ? Modal : Container;
+      const Component = isModal ? Modal : Container
 
-      return <Component />;
+      return <Component />
     }}
   />
 </Switch>

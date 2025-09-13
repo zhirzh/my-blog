@@ -4,5 +4,13 @@
    "semi": false,
    "singleQuote": true,
    "tabWidth": 3,
-   "tailwindStylesheet": "src/styles/global.css"
+   "tailwindStylesheet": "src/styles/global.css",
+   "overrides": [
+      {
+         "files": "*.md",
+         "options": {
+            "tabWidth": 2
+         }
+      }
+   ]
 }
