@@ -1,15 +1,15 @@
-<!DOCTYPE html><html lang="en" class="scroll-pt-30 scroll-smooth"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.13.5"><title>Astro Basics</title><!-- <ClientRouter /> --><link rel="stylesheet" href="/my-blog/_astro/2016-10-08-flowtype-and-modern-js.C_eVjRgJ.css"><script type="module" src="/my-blog/_astro/page.DTIbhfSr.js"></script></head> <body class="dark:bg-slate-900">  <div class="mx-auto grid max-w-5xl gap-x-10 py-30" style="grid-template-columns:minmax(0,1fr) 300px"> <article class="prose max-w-none dark:prose-invert"> <header> <h1>Timing Controls - Part 3</h1> <time class="text-sm" datetime="2016-10-20T00:00:00.000Z"> October 20th, 2016 </time> </header> <p><em>This is small one.</em></p>
-<p>In a [previous post], we looked at higher order implementations of the techniques discussed in [another post].</p>
-<p>In this post, we’ll look at [<code>requestAnimationFrame</code>].</p>
+<!DOCTYPE html><html lang="en" class="scroll-pt-30 scroll-smooth"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.13.5"><title>Astro Basics</title><!-- <ClientRouter /> --><link rel="stylesheet" href="/my-blog/_astro/2016-10-08-flowtype-and-modern-js.BJ8emPUq.css"><script type="module" src="/my-blog/_astro/page.DTIbhfSr.js"></script></head> <body class="dark:bg-slate-900">  <div class="mx-auto grid max-w-5xl gap-x-10 py-30" style="grid-template-columns:minmax(0,1fr) 300px"> <article class="prose max-w-none dark:prose-invert"> <header> <h1>Timing Controls - Part 3</h1> <time class="text-sm" datetime="2016-10-20T00:00:00.000Z"> October 20th, 2016 </time> </header> <p><em>This is small one.</em></p>
+<p>In a <a href="/my-blog/posts/2016-10-18-timing-controls-2">previous post</a>, we looked at higher order implementations of the techniques discussed in <a href="/my-blog/posts/2016-10-11-timing-controls">another post</a>.</p>
+<p>In this post, we’ll look at <a href="https://developer.mozilla.org/docs/Web/API/window/requestAnimationFrame"><code>requestAnimationFrame</code></a>.</p>
 <!-- preview -->
 <p>We use <code>requestAnimationFrame</code> when we have some repaint task - something that will change content on screen.
 But that’s just the general way of working things out.</p>
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> render</span><span style="color:#E1E4E8">() {</span></span>
 <span class="line"><span style="color:#6A737D">  // do something</span></span>
-<span class="line"><span style="color:#E1E4E8">  window.</span><span style="color:#B392F0">requestAnimationFrame</span><span style="color:#E1E4E8">(render);</span></span>
+<span class="line"><span style="color:#E1E4E8">  window.</span><span style="color:#B392F0">requestAnimationFrame</span><span style="color:#E1E4E8">(render)</span></span>
 <span class="line"><span style="color:#E1E4E8">}</span></span>
 <span class="line"></span>
-<span class="line"><span style="color:#E1E4E8">window.</span><span style="color:#B392F0">requestAnimationFrame</span><span style="color:#E1E4E8">(render);</span></span></code></pre>
+<span class="line"><span style="color:#E1E4E8">window.</span><span style="color:#B392F0">requestAnimationFrame</span><span style="color:#E1E4E8">(render)</span></span></code></pre>
 <hr>
 <h2 id="highrestimestamp">HighResTimeStamp</h2>
 <p>The problem with <code>requestAnimationFrame</code> is that it doesn’t enforce a callback speed - it only defines the upper limit of it.
@@ -19,32 +19,27 @@ As MDN puts it:</p>
 </blockquote>
 <p>The solution is easy.
 <code>requestAnimationFrame</code> passes a single argument to the callback function.
-It is a [high resolution timestamp], measured in milliseconds.</p>
+It is a <a href="https://developer.mozilla.org/docs/Web/API/DOMHighResTimeStamp">high resolution timestamp</a>, measured in milliseconds.</p>
 <p>We can use <code>requestAnimationFrame</code> as an alternative to <code>setTimeout</code> for our Throttle implementation.</p>
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> throttle</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">fn</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">delta</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">context</span><span style="color:#E1E4E8">) {</span></span>
 <span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">...</span><span style="color:#FFAB70">args</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
-<span class="line"><span style="color:#F97583">    let</span><span style="color:#E1E4E8"> then </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    let</span><span style="color:#E1E4E8"> then </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span></span>
 <span class="line"></span>
 <span class="line"><span style="color:#F97583">    function</span><span style="color:#B392F0"> repeat</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">now</span><span style="color:#E1E4E8">) {</span></span>
-<span class="line"><span style="color:#B392F0">      requestAnimationFrame</span><span style="color:#E1E4E8">(repeat);</span></span>
+<span class="line"><span style="color:#B392F0">      requestAnimationFrame</span><span style="color:#E1E4E8">(repeat)</span></span>
 <span class="line"><span style="color:#F97583">      if</span><span style="color:#E1E4E8"> (now </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> then </span><span style="color:#F97583">>=</span><span style="color:#E1E4E8"> delta) {</span></span>
-<span class="line"><span style="color:#E1E4E8">        then </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> now;</span></span>
-<span class="line"><span style="color:#E1E4E8">        fn.</span><span style="color:#B392F0">apply</span><span style="color:#E1E4E8">(context, args);</span></span>
+<span class="line"><span style="color:#E1E4E8">        then </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> now</span></span>
+<span class="line"><span style="color:#E1E4E8">        fn.</span><span style="color:#B392F0">apply</span><span style="color:#E1E4E8">(context, args)</span></span>
 <span class="line"><span style="color:#E1E4E8">      }</span></span>
 <span class="line"><span style="color:#E1E4E8">    }</span></span>
 <span class="line"></span>
-<span class="line"><span style="color:#B392F0">    requestAnimationFrame</span><span style="color:#E1E4E8">(repeat);</span></span>
-<span class="line"><span style="color:#E1E4E8">  };</span></span>
+<span class="line"><span style="color:#B392F0">    requestAnimationFrame</span><span style="color:#E1E4E8">(repeat)</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
 <span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
 <p>And done.
 Throttle with <code>requestAnimationFrame</code>.</p>
-<p>The code is available [here].</p>
-<p>[previous post]: {% post_url 2016-10-18-timing-controls-2 %} “Timing Controls - Part 2”
-[another post]: {% post_url 2016-10-11-timing-controls %} “Timing Controls”
-[<code>requestAnimationFrame</code>]: <a href="https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame">https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame</a>
-[high resolution timestamp]: <a href="https://developer.mozilla.org/en-US/docs/Web/API/DOMHighResTimeStamp">https://developer.mozilla.org/en-US/docs/Web/API/DOMHighResTimeStamp</a>
-[here]: <a href="https://codepen.io/zhirzh/pen/gWWKeE?editors=0011">https://codepen.io/zhirzh/pen/gWWKeE?editors=0011</a></p> <footer> <nav class="flex flex-wrap gap-x-10 gap-y-2"> <div>
+<p>The code is available <a href="https://codepen.io/zhirzh/pen/gWWKeE?editors=0011">here</a>.</p> <footer class="mt-20"> <nav class="flex flex-wrap gap-x-10 gap-y-2"> <div>
 &larr;
 <a href="/my-blog/posts/2016-10-18-timing-controls-2">Timing Controls - Part 2</a> </div> <div class="ms-auto"> <a href="/my-blog/posts/2016-11-10-react-angular-trends-phenomenon">Weird phenomenon in Google Trends for ReactJS and AngularJS</a>
 &rarr;
-</div> </nav> </footer> </article> <aside id="toc" class="sticky top-32 prose self-start text-xs leading-relaxed dark:prose-invert"> <div class="mb-3 text-xs">TABLE OF CONTENTS</div> <nav> <ul class="mt-0 mb-0 list-none ps-0"> <li data-depth="2" class="mt-0 mb-0 ps-0"> <span class="py-1 -ms-px inline-block border-s border-(--tw-prose-hr) has-[a[data-active]]:border-(--tw-prose-links) hover:border-(--tw-prose-links) ps-2"> <a href="#highrestimestamp" class="font-normal text-(--tw-prose-body) inline-block px-0.5 py-px no-underline data-[active]:font-medium text-(--tw-prose-captions) hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:text-(--tw-prose-links)"> HighResTimeStamp </a> </span>  </li> </ul> </nav> </aside> <script type="module">const l=Array.from(document.querySelectorAll("#toc a")),s=l.map(e=>{const n=e.getAttribute("href").replace("#",""),t=document.querySelector(`[id="${n}"]`);return t?{heading:t,link:e}:null}).filter(Boolean);let o,r;const i=()=>{const{scrollTop:e}=document.documentElement,c=s.findLast(({heading:d})=>d.offsetTop<e+220);if(!c)return;const{heading:n,link:t}=c;r!==n&&(t.dataset.active="true",o&&(delete o.dataset.active,o=void 0),r=n,o=t)};window.addEventListener("scroll",i);i();</script> </div>  </body></html>
+</div> </nav> </footer> </article> <aside id="toc" class="sticky top-32 prose self-start text-xs leading-relaxed dark:prose-invert"> <div class="mb-3 text-xs">TABLE OF CONTENTS</div> <nav> <ul class="mt-0 mb-0 list-none ps-0"> <li data-depth="2" class="mt-0 mb-0 ps-0"> <span class="py-1 -ms-px inline-block border-s border-(--tw-prose-hr) has-[a[data-active]]:border-(--tw-prose-links) hover:border-(--tw-prose-links) ps-2"> <a href="#highrestimestamp" class="font-normal text-(--tw-prose-body) inline-block px-0.5 py-px no-underline data-[active]:font-medium text-(--tw-prose-captions) hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:text-(--tw-prose-links)"> HighResTimeStamp </a> </span>  </li> </ul> </nav> </aside> <script type="module">const l=Array.from(document.querySelectorAll("#toc a")),s=l.map(e=>{const n=e.getAttribute("href").replace("#",""),t=document.querySelector(`[id="${n}"]`);return t?{heading:t,link:e}:null}).filter(Boolean);let o,r;const i=()=>{const{scrollTop:e}=document.documentElement,c=s.findLast(({heading:d})=>d.offsetTop<e+160);if(!c)return;const{heading:n,link:t}=c;r!==n&&(t.dataset.active="true",o&&(delete o.dataset.active,o=void 0),r=n,o=t)};window.addEventListener("scroll",i);i();</script> </div>  </body></html>

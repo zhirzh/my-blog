@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en" class="scroll-pt-30 scroll-smooth"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.13.5"><title>Astro Basics</title><!-- <ClientRouter /> --><link rel="stylesheet" href="/my-blog/_astro/2016-10-08-flowtype-and-modern-js.C_eVjRgJ.css"><script type="module" src="/my-blog/_astro/page.DTIbhfSr.js"></script></head> <body class="dark:bg-slate-900">  <div class="mx-auto prose py-30 dark:prose-invert"> <div> <h2> <a href="/my-blog/posts/2016-10-08-flowtype-and-modern-js" class="no-underline"> Flowtype and modern JS </a> </h2> <p>As we all know, JavaScript is <em>loose typed</em> - variables are declared without a type.
+<!DOCTYPE html><html lang="en" class="scroll-pt-30 scroll-smooth"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.13.5"><title>Astro Basics</title><!-- <ClientRouter /> --><link rel="stylesheet" href="/my-blog/_astro/2016-10-08-flowtype-and-modern-js.BJ8emPUq.css"><script type="module" src="/my-blog/_astro/page.DTIbhfSr.js"></script></head> <body class="dark:bg-slate-900">  <div class="mx-auto prose py-30 dark:prose-invert"> <div> <h2> <a href="/my-blog/posts/2016-10-08-flowtype-and-modern-js" class="no-underline"> Flowtype and modern JS </a> </h2> <p>As we all know, JavaScript is <em>loose typed</em> - variables are declared without a type.
 And like everything, not having explicitly mentioned data types had its pros and cons.</p>
 <p>One of the advantages is that the development process is much smoother, as JS is much more tolerant towards type mismatches.
 But that can also be seen as a disadvantage.</p>
@@ -14,23 +14,24 @@ There are some techniques that provide us precise control.</p>
 <li>Debounce</li>
 <li>Immediate</li>
 </ol>
- <a href="/my-blog/posts/2016-10-11-timing-controls">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2016-10-18-timing-controls-2" class="no-underline"> Timing Controls - Part 2 </a> </h2> <p>In a [previous post], we looked at some techniques to control the timings of functions (callbacks), triggered when specific events are fired. The techniques are:</p>
+ <a href="/my-blog/posts/2016-10-11-timing-controls">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2016-10-18-timing-controls-2" class="no-underline"> Timing Controls - Part 2 </a> </h2> <p>In a <a href="/my-blog/posts/2016-10-11-timing-controls">previous post</a>, we looked at some techniques to control the timings of functions (callbacks), triggered when specific events are fired. The techniques are:</p>
 <ol>
 <li>Debounce</li>
 <li>Immediate</li>
 <li>Throttle</li>
 </ol>
-<p>In this post, we will see how those techniques can be implemented as a generic API, in the form of [higher order functions].</p>
+<p>In this post, we will see how those techniques can be implemented as a generic API, in the form of <a href="https://en.wikipedia.org/wiki/Higher-order_function">higher order functions</a>.</p>
  <a href="/my-blog/posts/2016-10-18-timing-controls-2">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2016-10-20-timing-controls-3" class="no-underline"> Timing Controls - Part 3 </a> </h2> <p><em>This is small one.</em></p>
-<p>In a [previous post], we looked at higher order implementations of the techniques discussed in [another post].</p>
-<p>In this post, we’ll look at [<code>requestAnimationFrame</code>].</p>
+<p>In a <a href="/my-blog/posts/2016-10-18-timing-controls-2">previous post</a>, we looked at higher order implementations of the techniques discussed in <a href="/my-blog/posts/2016-10-11-timing-controls">another post</a>.</p>
+<p>In this post, we’ll look at <a href="https://developer.mozilla.org/docs/Web/API/window/requestAnimationFrame"><code>requestAnimationFrame</code></a>.</p>
  <a href="/my-blog/posts/2016-10-20-timing-controls-3">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2016-11-10-react-angular-trends-phenomenon" class="no-underline"> Weird phenomenon in Google Trends for ReactJS and AngularJS </a> </h2> <p><a href="https://www.google.com/trends/">Google Trends</a> shows and compares how frequent particular terms were searched for in google.
 So like, it tells you how <em>popular</em> something is.</p>
 <p>Being a JS enthusiast, I wanted to see how <a href="https://facebook.github.io/react/">ReactJS</a> fairs against <a href="https://angularjs.org/">AngularJS</a>.
 This is the trends chart:</p>
-<div>
-  <script type="text/javascript" src="https://ssl.gstatic.com/trends_nrtr/760_RC08/embed_loader.js"></script> <script type="text/javascript"> trends.embed.renderExploreWidget("TIMESERIES", {"comparisonItem":[{"keyword":"/m/012l1vxv","geo":"","time":"today 5-y"},{"keyword":"/m/0j45p7w","geo":"","time":"today 5-y"}],"category":0,"property":""}, {"exploreQuery":"q=%2Fm%2F012l1vxv,%2Fm%2F0j45p7w"}); </script>
-</div>
+<script type="text/javascript" src="https://ssl.gstatic.com/trends_nrtr/4215_RC01/embed_loader.js"></script>
+<script type="text/javascript">
+trends.embed.renderExploreWidget("TIMESERIES", {"comparisonItem":[{"keyword":"/m/012l1vxv","geo":"","time":"2015-01-01 2018-12-31"},{"keyword":"/m/0j45p7w","geo":"","time":"2015-01-01 2018-12-31"}],"category":0,"property":""}, {"exploreQuery":"date=2015-01-01%202018-12-31&q=%2Fm%2F012l1vxv,%2Fm%2F0j45p7w","guestPath":"https://trends.google.com:443/trends/embed/"});
+</script>
 <p>Each year since 2013, somewhere around 28th December, AngularJS falls quite a bit.
 And React goes up by a small, yet increasing, percentage.</p>
 <p>As a simple google search didn’t yield any results, I now turn to the community.</p> <a href="/my-blog/posts/2016-11-10-react-angular-trends-phenomenon">Read more</a> </div><div> <h2> <a href="/my-blog/posts/2016-11-22-docker-and-dc++" class="no-underline"> Docker and DC++ </a> </h2> <p>When I first started using <a href="https://www.docker.com/">Docker</a>, I was unable to use <a href="https://launchpad.net/linuxdcpp/">LinuxDC++</a> (my DC++ client).
