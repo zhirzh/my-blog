@@ -4,6 +4,7 @@
    "version": "0.0.1",
    "packageManager": "yarn@4.11.0",
    "scripts": {
+      "postinstall": "simple-git-hooks",
       "dev": "astro dev",
       "check": "astro check",
       "build": "astro build",
@@ -25,6 +26,8 @@
       "prettier": "^3.6.2",
       "prettier-plugin-astro": "^0.14.1",
       "prettier-plugin-tailwindcss": "^0.7.1",
+      "pretty-quick": "^4.2.2",
+      "simple-git-hooks": "^2.13.1",
       "tailwindcss": "^4.1.17",
       "typescript": "^5.9.3"
    }
