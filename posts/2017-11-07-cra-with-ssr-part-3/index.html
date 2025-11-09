@@ -1,0 +1,143 @@
+<!DOCTYPE html><html lang="en" class="scroll-pt-30 scroll-smooth"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/my-blog/favicon.svg"><meta name="generator" content="Astro v5.15.4"><title>Astro Basics</title><meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback" content="animate"><script type="module" src="/my-blog/_astro/ClientRouter.astro_astro_type_script_index_0_lang.BMng-qje.js"></script><link rel="stylesheet" href="/my-blog/_astro/2016-10-08-flowtype-and-modern-js.K0CmkkYa.css"><script type="module" src="/my-blog/_astro/page.ZXyU73wm.js"></script></head> <body class="dark:bg-slate-900">  <div class="mx-auto grid max-w-5xl gap-x-10 py-30" style="grid-template-columns:minmax(0,1fr) 300px"> <article class="prose max-w-none dark:prose-invert"> <header> <h1>Making CRA apps work with SSR - Part 3</h1> <time class="text-sm" datetime="2017-11-07T00:00:00.000Z"> November 7th, 2017 </time> </header> <blockquote>
+<p>This article is now part of a much longer series of posts titled <a href="https://hackernoon.com/making-cra-apps-work-with-ssr-b45f7c23d8db">Making CRA apps work with SSR</a>. You can find the the code <a href="https://github.com/zhirzh/cra-with-ssr">here on github</a>.</p>
+</blockquote>
+<p>In a <a href="https://medium.com/@zhirzh/making-cra-apps-work-with-ssr-part-1-8f5f813d510b">part 2</a>, we added static assets to our barebones CRA + SSR app. In this post we’ll add <a href="http://redux.js.org/"><em>redux</em></a> into the mix.</p>
+<h2 id="add-redux-to-client">Add redux to client</h2>
+<p>Before we can integrate redux in the server code, we need to add it in the client code. I am using the ubiquitous “todos” app for demonstrating redux integration.</p>
+<p>Since the main focus here is server integration, I’ll skip the client integration. You can checkout get the starter code <a href="https://github.com/zhirzh/cra-with-ssr/tree/client-redux">here on github</a>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#6A737D"># my-app/</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">git</span><span style="color:#9ECBFF"> checkout</span><span style="color:#9ECBFF"> client-redux</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">npm</span><span style="color:#9ECBFF"> i</span></span>
+<span class="line"><span style="color:#B392F0">npm</span><span style="color:#9ECBFF"> start</span></span></code></pre>
+<p><img src="/my-blog/media/2017-11-07-cra-with-ssr-part-3/cra%20ssr.png" alt=""></p>
+<h2 id="add-redux-to-server">Add redux to server</h2>
+<p>Thanks to the official <a href="https://redux.js.org/recipes/serverrendering">redux Server Rendering guide</a>, redux integration is actually pretty easy.</p>
+<p>Install the packages …</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#6A737D"># server/</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">npm</span><span style="color:#9ECBFF"> i</span><span style="color:#9ECBFF"> redux</span><span style="color:#9ECBFF"> react-redux</span></span></code></pre>
+<p>… and connect redux with <code>&#x3C;Provider /></code></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// server/src/react-renderer.js</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">var</span><span style="color:#E1E4E8"> React </span><span style="color:#F97583">=</span><span style="color:#B392F0"> require</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'react'</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">var</span><span style="color:#E1E4E8"> { renderToString } </span><span style="color:#F97583">=</span><span style="color:#B392F0"> require</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'react-dom/server'</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">var</span><span style="color:#E1E4E8"> { Provider } </span><span style="color:#F97583">=</span><span style="color:#B392F0"> require</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'react-redux'</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">var</span><span style="color:#E1E4E8"> { BUILD_DIR } </span><span style="color:#F97583">=</span><span style="color:#B392F0"> require</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'./paths'</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">var</span><span style="color:#E1E4E8"> App </span><span style="color:#F97583">=</span><span style="color:#B392F0"> require</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'../../client/lib/App'</span><span style="color:#E1E4E8">).default</span></span>
+<span class="line"><span style="color:#F97583">var</span><span style="color:#E1E4E8"> configureStore </span><span style="color:#F97583">=</span><span style="color:#B392F0"> require</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'../../client/lib/modules/store'</span><span style="color:#E1E4E8">).default</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">...</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> reactRenderer</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">req</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">res</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">  var</span><span style="color:#E1E4E8"> store </span><span style="color:#F97583">=</span><span style="color:#B392F0"> configureStore</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  var</span><span style="color:#E1E4E8"> app </span><span style="color:#F97583">=</span><span style="color:#B392F0"> renderToString</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#79B8FF">Provider</span><span style="color:#B392F0"> store</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">{store}></span></span>
+<span class="line"><span style="color:#E1E4E8">      &#x3C;</span><span style="color:#79B8FF">App</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;/</span><span style="color:#79B8FF">Provider</span><span style="color:#E1E4E8">>,</span></span>
+<span class="line"><span style="color:#E1E4E8">  )</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  var</span><span style="color:#E1E4E8"> html </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> fs</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">readFileSync</span><span style="color:#E1E4E8">(path.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">BUILD_DIR</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'index.html'</span><span style="color:#E1E4E8">), </span><span style="color:#9ECBFF">'utf8'</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">replace</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'__ROOT__'</span><span style="color:#E1E4E8">, app)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> res.</span><span style="color:#B392F0">send</span><span style="color:#E1E4E8">(html)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="initial-render-on-server">Initial render on server</h2>
+<p>Simply adding a redux store doesn’t do much. We also need some data inside. We can get data into the store by declaring it in the renderer, importing from a database or dispatching actions.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// server/src/react-renderer.js</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">var</span><span style="color:#E1E4E8"> { BUILD_DIR } </span><span style="color:#F97583">=</span><span style="color:#B392F0"> require</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'./paths'</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">var</span><span style="color:#E1E4E8"> App </span><span style="color:#F97583">=</span><span style="color:#B392F0"> require</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'../../client/lib/App'</span><span style="color:#E1E4E8">).default</span></span>
+<span class="line"><span style="color:#F97583">var</span><span style="color:#E1E4E8"> configureStore </span><span style="color:#F97583">=</span><span style="color:#B392F0"> require</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'../../client/lib/modules/store'</span><span style="color:#E1E4E8">).default</span></span>
+<span class="line"><span style="color:#F97583">var</span><span style="color:#E1E4E8"> { addTodo } </span><span style="color:#F97583">=</span><span style="color:#B392F0"> require</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'../../client/lib/logic/todos'</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> reactRenderer</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">req</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">res</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">  var</span><span style="color:#E1E4E8"> state </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    todos: [</span></span>
+<span class="line"><span style="color:#E1E4E8">      {</span></span>
+<span class="line"><span style="color:#E1E4E8">        id: </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">        task: </span><span style="color:#9ECBFF">'task from server'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      },</span></span>
+<span class="line"><span style="color:#E1E4E8">    ],</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  var</span><span style="color:#E1E4E8"> store </span><span style="color:#F97583">=</span><span style="color:#B392F0"> configureStore</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">    state,</span></span>
+<span class="line"><span style="color:#E1E4E8">  })</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  store.</span><span style="color:#B392F0">dispatch</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">addTodo</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'also from server'</span><span style="color:#E1E4E8">))</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  var</span><span style="color:#E1E4E8"> app </span><span style="color:#F97583">=</span><span style="color:#B392F0"> renderToString</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">...</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  ...</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><img src="/my-blog/media/2017-11-07-cra-with-ssr-part-3/broken%20ssr.png" alt=""></p>
+<p>We can see that the although data is being rendered on the server, it doesn’t appear anywhere on the client. That’s because the store on client and server are not <em>in-sync</em>.</p>
+<h2 id="initial-render-on-client">Initial render on client</h2>
+<p>We have to <em>embed</em> the server state for the client to use during its first render.</p>
+<p>We need to add a render hook in <code>client/public/index.html</code> for redux …</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="html"><code><span class="line"><span style="color:#E1E4E8">// client/public/index.html</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">div</span><span style="color:#B392F0"> id</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"root"</span><span style="color:#E1E4E8">>__MY_APP__&#x3C;/</span><span style="color:#85E89D">div</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">script</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">  window.__INITIAL_STATE__ </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> __REDUX__</span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;/</span><span style="color:#85E89D">script</span><span style="color:#E1E4E8">></span></span></code></pre>
+<p>… replace it with the server store state …</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// server/src/react-renderer.js</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> reactRenderer</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">req</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">res</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">  var</span><span style="color:#E1E4E8"> state </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> {</span><span style="color:#F97583">...</span><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  var</span><span style="color:#E1E4E8"> store </span><span style="color:#F97583">=</span><span style="color:#B392F0"> configureStore</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">    state,</span></span>
+<span class="line"><span style="color:#E1E4E8">  })</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  store.</span><span style="color:#B392F0">dispatch</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">addTodo</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'also from server'</span><span style="color:#E1E4E8">))</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  var</span><span style="color:#E1E4E8"> app </span><span style="color:#F97583">=</span><span style="color:#F97583"> ...</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  var</span><span style="color:#E1E4E8"> html </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> fs</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">readFileSync</span><span style="color:#E1E4E8">(path.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">BUILD_DIR</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'index.html'</span><span style="color:#E1E4E8">), </span><span style="color:#9ECBFF">'utf8'</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">replace</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'__ROOT__'</span><span style="color:#E1E4E8">, app)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">replace</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'__REDUX__'</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">JSON</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">stringify</span><span style="color:#E1E4E8">(store.</span><span style="color:#B392F0">getState</span><span style="color:#E1E4E8">()))</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> res.</span><span style="color:#B392F0">send</span><span style="color:#E1E4E8">(html)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>… and tell client redux to get the initial state from <code>window.__INITIAL_STATE__</code></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// client/src/index.js</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> state</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> window.__INITIAL_STATE__</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> store</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> configureStore</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">  middlewares: [loggerMiddleware],</span></span>
+<span class="line"><span style="color:#E1E4E8">  state,</span></span>
+<span class="line"><span style="color:#E1E4E8">})</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">ReactDOM.</span><span style="color:#B392F0">render</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">  &#x3C;</span><span style="color:#79B8FF">Provider</span><span style="color:#B392F0"> store</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">{store}></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#79B8FF">App</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">  &#x3C;/</span><span style="color:#79B8FF">Provider</span><span style="color:#E1E4E8">>,</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  document.</span><span style="color:#B392F0">getElementById</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'root'</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">)</span></span></code></pre>
+<h2 id="the-end">The End</h2>
+<p>If we now build our client &#x26; start our server, everything should work.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#6A737D"># client/</span></span>
+<span class="line"><span style="color:#B392F0">npm</span><span style="color:#9ECBFF"> run</span><span style="color:#9ECBFF"> build</span></span>
+<span class="line"><span style="color:#79B8FF">...</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># server</span></span>
+<span class="line"><span style="color:#B392F0">npm</span><span style="color:#9ECBFF"> start</span></span>
+<span class="line"><span style="color:#79B8FF">...</span></span></code></pre>
+<p><img src="/my-blog/media/2017-11-07-cra-with-ssr-part-3/hydration.png" alt=""></p>
+<p>So far, we have created a CRA app with SSR with asset imports and redux. In the next part, I will add routing to the existing setup using <a href="https://reacttraining.com/react-router/web"><em>react-router</em></a>.</p>
+<p>Since routing is a major part of any web project, this might take some time. In the meantime, I might add some other niceties, like support for css-modules.</p>
+<p>And as always, you can find the code for this part <a href="https://github.com/zhirzh/cra-with-ssr/tree/bc5b49c49f1cd3398ffac4cdd2c9724aa5189320">here on github</a>.</p> <footer class="mt-20"> <nav class="flex flex-wrap gap-x-10 gap-y-2"> <div>
+&larr;
+<a href="/my-blog/posts/2017-11-07-cra-with-ssr-part-2">Making CRA apps work with SSR - Part 2</a> </div> <div class="ms-auto"> <a href="/my-blog/posts/2017-09-02-mediarecorder">Stream capturing with MediaRecorder</a>
+&rarr;
+</div> </nav> </footer> </article> <aside id="toc" class="sticky top-32 prose self-start text-xs leading-relaxed dark:prose-invert"> <div class="mb-3 text-xs">TABLE OF CONTENTS</div> <nav> <ul class="mt-0 mb-0 list-none ps-0"> <li data-depth="2" class="mt-0 mb-0 ps-0"> <span class="py-1 -ms-px inline-block border-s border-(--tw-prose-hr) has-[a[data-active]]:border-(--tw-prose-links) hover:border-(--tw-prose-links) ps-2"> <a href="#add-redux-to-client" class="font-normal text-(--tw-prose-body) inline-block px-0.5 py-px no-underline data-[active]:font-medium text-(--tw-prose-captions) hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:text-(--tw-prose-links)"> Add redux to client </a> </span>  </li><li data-depth="2" class="mt-0 mb-0 ps-0"> <span class="py-1 -ms-px inline-block border-s border-(--tw-prose-hr) has-[a[data-active]]:border-(--tw-prose-links) hover:border-(--tw-prose-links) ps-2"> <a href="#add-redux-to-server" class="font-normal text-(--tw-prose-body) inline-block px-0.5 py-px no-underline data-[active]:font-medium text-(--tw-prose-captions) hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:text-(--tw-prose-links)"> Add redux to server </a> </span>  </li><li data-depth="2" class="mt-0 mb-0 ps-0"> <span class="py-1 -ms-px inline-block border-s border-(--tw-prose-hr) has-[a[data-active]]:border-(--tw-prose-links) hover:border-(--tw-prose-links) ps-2"> <a href="#initial-render-on-server" class="font-normal text-(--tw-prose-body) inline-block px-0.5 py-px no-underline data-[active]:font-medium text-(--tw-prose-captions) hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:text-(--tw-prose-links)"> Initial render on server </a> </span>  </li><li data-depth="2" class="mt-0 mb-0 ps-0"> <span class="py-1 -ms-px inline-block border-s border-(--tw-prose-hr) has-[a[data-active]]:border-(--tw-prose-links) hover:border-(--tw-prose-links) ps-2"> <a href="#initial-render-on-client" class="font-normal text-(--tw-prose-body) inline-block px-0.5 py-px no-underline data-[active]:font-medium text-(--tw-prose-captions) hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:text-(--tw-prose-links)"> Initial render on client </a> </span>  </li><li data-depth="2" class="mt-0 mb-0 ps-0"> <span class="py-1 -ms-px inline-block border-s border-(--tw-prose-hr) has-[a[data-active]]:border-(--tw-prose-links) hover:border-(--tw-prose-links) ps-2"> <a href="#the-end" class="font-normal text-(--tw-prose-body) inline-block px-0.5 py-px no-underline data-[active]:font-medium text-(--tw-prose-captions) hover:text-(--tw-prose-links) focus:text-(--tw-prose-links) data-[active]:text-(--tw-prose-links)"> The End </a> </span>  </li> </ul> </nav> </aside> <script type="module">const l=Array.from(document.querySelectorAll("#toc a")),s=l.map(e=>{const n=e.getAttribute("href").replace("#",""),t=document.querySelector(`[id="${n}"]`);return t?{heading:t,link:e}:null}).filter(Boolean);let o,r;const i=()=>{const{scrollTop:e}=document.documentElement,c=s.findLast(({heading:d})=>d.offsetTop<e+160);if(!c)return;const{heading:n,link:t}=c;r!==n&&(t.dataset.active="true",o&&(delete o.dataset.active,o=void 0),r=n,o=t)};window.addEventListener("scroll",i);i();</script> </div>  </body></html>
