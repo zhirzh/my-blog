@@ -1,11 +1,16 @@
 <style>
-  video {
-    box-shadow: 0 0 10px gray;
-    display: block;
-  }
+   video {
+      box-shadow: 0 0 10px gray;
+      display: block;
+   }
 </style>
 
-<video id="video" src="/media/2017-09-02-mediarecorder/Agent 327 - Operation Barbershop-mN0zPOpADL4.mp4" controls autoplay></video>
+<video
+   id="video"
+   src="/media/2017-09-02-mediarecorder/Agent 327 - Operation Barbershop-mN0zPOpADL4.mp4"
+   controls
+   autoplay
+></video>
 
 <button id="startBtn" disabled>START</button>
 
@@ -15,39 +20,39 @@
 <button id="stopBtn" disabled>STOP</button>
 
 <script>
-const allChunks = [];
+   const allChunks = []
 
-function main() {
-  const stream = video.captureStream();
+   function main() {
+      const stream = video.captureStream()
 
-  const recorder = new MediaRecorder(stream);
+      const recorder = new MediaRecorder(stream)
 
-  recorder.ondataavailable = e => allChunks.push(e.data);
+      recorder.ondataavailable = (e) => allChunks.push(e.data)
 
-  pauseBtn.onclick = () => recorder.pause();
-  resumeBtn.onclick = () => recorder.resume();
-  startBtn.onclick = () => recorder.start(10);
-  stopBtn.onclick = () => recorder.stop() || promptDownload();
+      pauseBtn.onclick = () => recorder.pause()
+      resumeBtn.onclick = () => recorder.resume()
+      startBtn.onclick = () => recorder.start(10)
+      stopBtn.onclick = () => recorder.stop() || promptDownload()
 
-  pauseBtn.disabled = false;
-  resumeBtn.disabled = false;
-  startBtn.disabled = false;
-  stopBtn.disabled = false;
-}
+      pauseBtn.disabled = false
+      resumeBtn.disabled = false
+      startBtn.disabled = false
+      stopBtn.disabled = false
+   }
 
-function promptDownload() {
-  const link = document.createElement('a');
-  link.style.display = 'none';
+   function promptDownload() {
+      const link = document.createElement('a')
+      link.style.display = 'none'
 
-  const fullBlob = new Blob(allChunks);
-  const downloadUrl = window.URL.createObjectURL(fullBlob);
-  link.href = downloadUrl;
-  link.download = 'media.webm';
+      const fullBlob = new Blob(allChunks)
+      const downloadUrl = window.URL.createObjectURL(fullBlob)
+      link.href = downloadUrl
+      link.download = 'media.webm'
 
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-}
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+   }
 
-main();
+   main()
 </script>

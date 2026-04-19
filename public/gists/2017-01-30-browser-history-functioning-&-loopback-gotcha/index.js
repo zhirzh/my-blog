@@ -1,115 +1,125 @@
-(function init() {
-  'use strict';
+;(function init() {
+   'use strict'
 
-  const data = {
-    history: [
-      // 'New Tab',
-      window.location.hash.slice(1),
-    ],
-    active: 0,
-  };
+   const data = {
+      history: [
+         // 'New Tab',
+         window.location.hash.slice(1),
+      ],
+      active: 0,
+   }
 
+   // create copies of window.history methods
+   const historyPushState = history.pushState
+   const historyBack = history.back
+   const historyForward = history.forward
 
-  // create copies of window.history methods
-  const historyPushState = history.pushState;
-  const historyBack = history.back;
-  const historyForward = history.forward;
+   // override window.history
+   function pushState(state, title, url) {
+      let isNew = false
+      if (data.active < data.history.length - 1) {
+         // new history branch
+         isNew = true
 
-  // override window.history
-  function pushState(state, title, url) {
-    let isNew = false;
-    if (data.active < data.history.length-1) {
-      // new history branch
-      isNew = true;
+         const currentBranchNodes = Array.from(
+            document.querySelectorAll('#historyStructure .node'),
+         )
+         currentBranchNodes.slice(data.active + 1).forEach((span, i) => {
+            span.classList.add('deleted')
+         })
 
-      const currentBranchNodes = Array.from(document.querySelectorAll('#historyStructure .node'));
-      currentBranchNodes.slice(data.active + 1)
-        .forEach((span, i) => {
-          span.classList.add('deleted');
-        });
+         historyStructure.removeAttribute('id')
+         historyStructures.innerHTML = `<div id="historyStructure"></div>${historyStructures.innerHTML}`
 
-      historyStructure.removeAttribute('id');
-      historyStructures.innerHTML = `<div id="historyStructure"></div>${historyStructures.innerHTML}`;
+         // truncate history list
+         data.history.length = data.active + 1
+      }
 
-      // truncate history list
-      data.history.length = data.active + 1;
-    }
+      data.history.push(url.match(/#(.*)/)[1])
+      data.active++
 
-    data.history.push(url.match(/#(.*)/)[1]);
-    data.active++;
+      render(isNew)
 
-    render(isNew);
+      historyPushState.call(history, state, title, url)
+   }
 
-    historyPushState.call(history, state, title, url);
-  }
+   function back() {
+      if (data.active <= 0) {
+         return
+      }
 
-  function back() {
-    if (data.active <= 0) {
-      return;
-    }
+      data.active--
 
-    data.active--;
+      historyBack.call(history)
+      render()
+   }
 
-    historyBack.call(history);
-    render();
-  }
+   function forward() {
+      if (data.active >= data.history.length - 1) {
+         return
+      }
 
-  function forward() {
-    if (data.active >= data.history.length - 1) {
-      return;
-    }
+      data.active++
 
-    data.active++;
+      historyForward.call(history)
+      render()
+   }
 
-    historyForward.call(history);
-    render();
-  }
+   // DOM interaction
+   function backBtnOnclick() {
+      history.back()
+   }
 
+   function forwardBtnOnclick() {
+      history.forward()
+   }
 
-  // DOM interaction
-  function backBtnOnclick() {
-    history.back();
-  }
+   function navOnclick() {
+      const href = this.getAttribute('href')
+      history.pushState(
+         {
+            timestamp: +new Date(),
+         },
+         '',
+         href,
+      )
 
-  function forwardBtnOnclick() {
-    history.forward();
-  }
+      window.parent.postMessage(
+         {
+            height: document.body.scrollHeight,
+            target: window.location.href,
+         },
+         '*',
+      )
 
-  function navOnclick() {
-    const href = this.getAttribute('href');
-    history.pushState({
-      timestamp: +(new Date()),
-    }, '', href);
+      // return false;
+   }
 
-    window.parent.postMessage({
-      height: document.body.scrollHeight,
-      target: window.location.href,
-    }, '*');
-
-    // return false;
-  }
-
-  function render(isNew = false) {
-    historyStructure.innerHTML = data.history.map((x, i) => (
-      `<span class="node ${(i === data.active) ? 'active' : ''}">
+   function render(isNew = false) {
+      historyStructure.innerHTML = data.history
+         .map(
+            (x, i) =>
+               `<span class="node ${i === data.active ? 'active' : ''}">
         ${x}
-      </span>`
-    )).join('<span class="arrow">&harr;</span>');
-  }
+      </span>`,
+         )
+         .join('<span class="arrow">&harr;</span>')
+   }
 
+   history.pushState = pushState
+   history.back = back
+   history.forward = forward
 
-  history.pushState = pushState;
-  history.back = back;
-  history.forward = forward;
+   backBtn.onclick = backBtnOnclick
+   forwardBtn.onclick = forwardBtnOnclick
 
-  backBtn.onclick = backBtnOnclick;
-  forwardBtn.onclick = forwardBtnOnclick;
+   Array.from(document.querySelectorAll('a')).forEach(
+      (a) => (a.onclick = navOnclick),
+   )
 
-  Array.from(document.querySelectorAll('a')).forEach((a) => (a.onclick = navOnclick));
+   window.onpopstate = function (e) {
+      // connect browser's back/forward button to the app
+   }
 
-  window.onpopstate = function(e) {
-    // connect browser's back/forward button to the app
-  };
-
-  render();
-})();
+   render()
+})()

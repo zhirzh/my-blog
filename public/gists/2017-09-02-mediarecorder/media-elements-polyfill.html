@@ -1,11 +1,16 @@
 <style>
-  video {
-    box-shadow: 0 0 10px gray;
-    display: block;
-  }
+   video {
+      box-shadow: 0 0 10px gray;
+      display: block;
+   }
 </style>
 
-<video id="video" src="/media/2017-09-02-mediarecorder/Agent 327 - Operation Barbershop-mN0zPOpADL4.mp4" controls autoplay></video>
+<video
+   id="video"
+   src="/media/2017-09-02-mediarecorder/Agent 327 - Operation Barbershop-mN0zPOpADL4.mp4"
+   controls
+   autoplay
+></video>
 
 <button id="startBtn" disabled>START</button>
 
@@ -15,87 +20,87 @@
 <button id="stopBtn" disabled>STOP</button>
 
 <script>
-const allChunks = [];
+   const allChunks = []
 
-function polyfillAudio(mediaElement) {
-  const audioCtx = new AudioContext();
+   function polyfillAudio(mediaElement) {
+      const audioCtx = new AudioContext()
 
-  const source = audioCtx.createMediaElementSource(mediaElement);
-  const destination = audioCtx.createMediaStreamDestination();
+      const source = audioCtx.createMediaElementSource(mediaElement)
+      const destination = audioCtx.createMediaStreamDestination()
 
-  source.connect(destination);
-  source.connect(audioCtx.destination);
+      source.connect(destination)
+      source.connect(audioCtx.destination)
 
-  return destination.stream;
-}
+      return destination.stream
+   }
 
-function polyfillVideo(videoElement) {
-  const canvas = document.createElement('canvas');
+   function polyfillVideo(videoElement) {
+      const canvas = document.createElement('canvas')
 
-  video.onloadedmetadata = () => {
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-  };
+      video.onloadedmetadata = () => {
+         canvas.width = video.videoWidth
+         canvas.height = video.videoHeight
+      }
 
-  renderVideoFrame(canvas, videoElement);
+      renderVideoFrame(canvas, videoElement)
 
-  return canvas.captureStream(60);
-}
+      return canvas.captureStream(60)
+   }
 
-function renderVideoFrame(canvas, videoElement) {
-  const ctx = canvas.getContext('2d');
+   function renderVideoFrame(canvas, videoElement) {
+      const ctx = canvas.getContext('2d')
 
-  ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height)
 
-  setTimeout(() => renderVideoFrame(canvas, videoElement));
-}
+      setTimeout(() => renderVideoFrame(canvas, videoElement))
+   }
 
-function init() {
-  video.captureStream = () => {
-    const audioStream = polyfillAudio(video);
-    const videoStream = polyfillVideo(video);
+   function init() {
+      video.captureStream = () => {
+         const audioStream = polyfillAudio(video)
+         const videoStream = polyfillVideo(video)
 
-    const stream = new MediaStream([
-      ...audioStream.getTracks(),
-      ...videoStream.getTracks(),
-    ]);
+         const stream = new MediaStream([
+            ...audioStream.getTracks(),
+            ...videoStream.getTracks(),
+         ])
 
-    return stream;
-  }
-}
+         return stream
+      }
+   }
 
-function main() {
-  const stream = video.captureStream();
+   function main() {
+      const stream = video.captureStream()
 
-  const recorder = new MediaRecorder(stream);
+      const recorder = new MediaRecorder(stream)
 
-  recorder.ondataavailable = e => allChunks.push(e.data);
+      recorder.ondataavailable = (e) => allChunks.push(e.data)
 
-  pauseBtn.onclick = () => recorder.pause();
-  resumeBtn.onclick = () => recorder.resume();
-  startBtn.onclick = () => recorder.start(10);
-  stopBtn.onclick = () => recorder.stop() || promptDownload();
+      pauseBtn.onclick = () => recorder.pause()
+      resumeBtn.onclick = () => recorder.resume()
+      startBtn.onclick = () => recorder.start(10)
+      stopBtn.onclick = () => recorder.stop() || promptDownload()
 
-  pauseBtn.disabled = false;
-  resumeBtn.disabled = false;
-  startBtn.disabled = false;
-  stopBtn.disabled = false;
-}
+      pauseBtn.disabled = false
+      resumeBtn.disabled = false
+      startBtn.disabled = false
+      stopBtn.disabled = false
+   }
 
-function promptDownload() {
-  const link = document.createElement('a');
-  link.style.display = 'none';
+   function promptDownload() {
+      const link = document.createElement('a')
+      link.style.display = 'none'
 
-  const fullBlob = new Blob(allChunks);
-  const downloadUrl = window.URL.createObjectURL(fullBlob);
-  link.href = downloadUrl;
-  link.download = 'media.webm';
+      const fullBlob = new Blob(allChunks)
+      const downloadUrl = window.URL.createObjectURL(fullBlob)
+      link.href = downloadUrl
+      link.download = 'media.webm'
 
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-}
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+   }
 
-init();
-main();
+   init()
+   main()
 </script>
